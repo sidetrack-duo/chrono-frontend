@@ -2,18 +2,23 @@
 
 @theme {
   /* Color System */
-  --color-primary: #14B8A6;
-  --color-primary-light: #2DD4BF;
-  --color-primary-dark: #0D9488;
-  --color-primary-50: #F0FDFA;
+  --color-primary: #35c1b7;
+  --color-primary-light: #56d4ca;
+  --color-primary-dark: #2a9d93;
+  --color-primary-50: #F0FDFC;
 
   /* Font Family */
   --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Custom Utilities (if needed) */
+/* Custom Utilities */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* 스크롤바 밀림 방지 */
+html {
+  scrollbar-gutter: stable;
 }

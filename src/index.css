@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+@theme {
+  /* Color System */
+  --color-primary: #14B8A6;
+  --color-primary-light: #2DD4BF;
+  --color-primary-dark: #0D9488;
+  --color-primary-50: #F0FDFA;
+
+  /* Font Family */
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Custom Utilities (if needed) */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

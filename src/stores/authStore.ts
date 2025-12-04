@@ -12,6 +12,7 @@ interface AuthState {
   logout: () => void;
   setUser: (user: User) => void;
   setToken: (token: string) => void;
+  setMockAuth: (user: User, token?: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -53,8 +54,15 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setToken: (token: string) => {
-        // persist 미들웨어가 auth-storage에 자동 저장
         set({ accessToken: token, isAuthenticated: true });
+      },
+
+      setMockAuth: (user: User, token: string = "mock-token") => {
+        set({
+          user,
+          accessToken: token,
+          isAuthenticated: true,
+        });
       },
     }),
     {

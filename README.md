@@ -1,4 +1,4 @@
-# <span style="font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-weight: 800; font-size: 1.2em; letter-spacing: -0.015em; color: #1F2937;">chrono<span style="color: #35c1b7; font-size: 1.5em; line-height: 1;">.</span></span>
+# <img src="src/assets/chrono.svg" alt="chrono." width="180" height="50" />
 
 GitHub 커밋 기반 사이드 프로젝트 관리 웹 서비스
 

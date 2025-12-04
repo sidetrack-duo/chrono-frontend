@@ -1,31 +1,52 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import logo from "@/assets/logo.svg";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { Card } from "@/components/common/Card";
+import { useAuthStore } from "@/stores/authStore";
+import { isApiError } from "@/lib/api/client";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const login = useAuthStore((state) => state.login);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const message = (location.state as { message?: string })?.message;
+    if (message) {
+      setSuccessMessage(message);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setIsLoading(true);
 
-    // TODO: API 연동
-    setTimeout(() => {
+    try {
+      await login({ email, password });
+      const from = (location.state as { from?: Location })?.from?.pathname || "/dashboard";
+      navigate(from, { replace: true });
+    } catch (err) {
+      if (isApiError(err)) {
+        setError(err.message || "로그인에 실패했습니다.");
+      } else {
+        setError("로그인 중 오류가 발생했습니다.");
+      }
+    } finally {
       setIsLoading(false);
-      navigate("/dashboard");
-    }, 1000);
+    }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-[400px] space-y-8">
-        {/* Logo Section */}
         <div className="flex flex-col items-center justify-center text-center">
           <Link to="/" className="mb-6 flex flex-col items-center gap-3 transition-opacity hover:opacity-80">
             <span className="text-5xl font-extrabold tracking-[-0.015em] text-gray-900">
@@ -33,13 +54,22 @@ export function LoginPage() {
             </span>
           </Link>
           <p className="text-sm text-gray-500">
-            돌아오신 것을 환영합니다 👋
+            돌아오신 것을 환영합니다!
           </p>
         </div>
 
-        {/* Login Form Card */}
         <Card className="p-6 sm:p-8 border-gray-100 shadow-lg shadow-gray-100/50">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {successMessage && (
+              <div className="rounded-lg bg-green-50 p-3 text-sm text-green-600">
+                {successMessage}
+              </div>
+            )}
+            {error && (
+              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
             <div className="space-y-4">
               <Input
                 id="email"

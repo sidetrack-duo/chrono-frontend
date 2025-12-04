@@ -13,6 +13,12 @@
 - **Dark**: `#2a9d93` (Hover 상태)
 - **Bg**: `#F0FDFC` (배경, 뱃지)
 
+### Accent (Coral)
+- **Main**: `#FF7D69` (강조, 알림, 중요 요소)
+- **Light**: `#FF9D8A`
+- **Dark**: `#F5604C` (Hover 상태)
+- **Bg**: `#FFF5F5` (배경, 뱃지)
+
 ### Gray Scale
 - **Text Main**: `#1F2937` (`gray-800`)
 - **Text Sub**: `#6B7280` (`gray-500`)

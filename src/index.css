@@ -7,6 +7,12 @@
   --color-primary-dark: #2a9d93;
   --color-primary-50: #F0FDFC;
 
+  /* Accent Color (Coral) */
+  --color-accent: #FF7D69;
+  --color-accent-light: #FF9D8A;
+  --color-accent-dark: #F5604C;
+  --color-accent-50: #FFF5F5;
+
   /* Font Family */
   --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -15,6 +21,10 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  .shadow-uniform {
+    box-shadow: 0 -1px 1px 0 rgb(0 0 0 / 0.02), 0 2px 4px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.08);
   }
 }
 

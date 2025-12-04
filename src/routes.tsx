@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LoginPage } from "@/pages/auth/LoginPage";
 import { LandingPage } from "@/pages/LandingPage";
 import { DashboardPage } from "@/pages/dashboard/DashboardPage";
@@ -18,13 +19,41 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <LandingPage /> },
-      { path: "dashboard", element: <DashboardPage /> },
+      {
+        path: "dashboard",
+        element: (
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: "projects",
         children: [
-          { index: true, element: <ProjectListPage /> },
-          { path: "new", element: <ProjectCreatePage /> },
-          { path: ":id", element: <ProjectDetailPage /> },
+          {
+            index: true,
+            element: (
+              <ProtectedRoute>
+                <ProjectListPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "new",
+            element: (
+              <ProtectedRoute>
+                <ProjectCreatePage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: ":id",
+            element: (
+              <ProtectedRoute>
+                <ProjectDetailPage />
+              </ProtectedRoute>
+            ),
+          },
         ],
       },
     ],

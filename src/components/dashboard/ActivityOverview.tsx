@@ -1,4 +1,4 @@
-import { Flame, TrendingUp, PlayCircle, CircleCheckBig, FolderTree } from "lucide-react";
+import { Flame, Sparkle, PlayCircle, CircleCheckBig, FolderTree } from "lucide-react";
 import { getCommitIntensity } from "@/utils/dashboard";
 
 interface ActivityOverviewProps {
@@ -33,46 +33,46 @@ export function ActivityOverview({
   completedCount,
 }: ActivityOverviewProps) {
   return (
-    <div className="rounded-xl bg-white p-6 shadow-uniform">
+    <div className="rounded-xl bg-white p-6 shadow-sm">
       {/* 요약 카드 */}
-      <div className="relative mb-8 rounded-lg bg-primary/5 py-8">
+      <div className="relative mb-[30px] rounded-lg bg-zinc-50 py-8 px-2">
         <div className="relative flex items-center justify-between">
           {/* 1. 진행중 */}
           <div className="relative z-10 flex flex-1 flex-col items-center gap-3">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-light shadow-lg shadow-primary-light/20">
+            <div className="flex h-15 w-15 items-center justify-center rounded-full bg-primary-light shadow-lg shadow-primary-light/20">
               <PlayCircle className="h-8 w-8 text-white" />
             </div>
             <div className="flex items-baseline gap-2">
               <p className="text-xs font-medium text-gray-500">진행 중</p>
-              <p className="text-2xl font-bold text-gray-900">{inProgressCount}</p>
+              <p className="text-xl font-bold text-gray-900">{inProgressCount}</p>
             </div>
           </div>
 
           {/* 연결선 1: 첫 번째 노드 중심 → 두 번째 노드 중심 */}
-          <div className="absolute left-[16.67%] right-[50%] top-8 hidden h-2 -translate-y-0.5 bg-gradient-to-r from-primary-light to-primary md:block"></div>
+          <div className="absolute left-[16.67%] right-[50%] top-[30px] hidden h-2 -translate-y-1/2 bg-gradient-to-r from-primary-light to-primary md:block"></div>
 
           {/* 2. 완료 */}
           <div className="relative z-10 flex flex-1 flex-col items-center gap-3">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary shadow-lg shadow-primary/20">
+            <div className="flex h-15 w-15 items-center justify-center rounded-full bg-primary shadow-lg shadow-primary/20">
               <CircleCheckBig className="h-8 w-8 text-white" />
             </div>
             <div className="flex items-baseline gap-2">
               <p className="text-xs font-medium text-gray-500">완료</p>
-              <p className="text-2xl font-bold text-gray-900">{completedCount}</p>
+              <p className="text-xl font-bold text-gray-900">{completedCount}</p>
             </div>
           </div>
 
           {/* 연결선 2: 두 번째 노드 중심 → 세 번째 노드 중심 */}
-          <div className="absolute left-[50%] right-[16.67%] top-8 hidden h-2 -translate-y-0.5 bg-gradient-to-r from-primary to-primary-dark md:block"></div>
+          <div className="absolute left-[50%] right-[16.67%] top-[30px] hidden h-2 -translate-y-1/2 bg-gradient-to-r from-primary to-primary-dark md:block"></div>
 
           {/* 3. 전체 프로젝트 */}
           <div className="relative z-10 flex flex-1 flex-col items-center gap-3">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-dark shadow-lg shadow-primary-dark/20">
+            <div className="flex h-15 w-15 items-center justify-center rounded-full bg-primary-dark shadow-lg shadow-primary-dark/20">
               <FolderTree className="h-8 w-8 text-white" />
             </div>
             <div className="flex items-baseline gap-2">
               <p className="text-xs font-medium text-gray-500">전체</p>
-              <p className="text-2xl font-bold text-gray-900">{inProgressCount + completedCount}</p>
+              <p className="text-xl font-bold text-gray-900">{inProgressCount + completedCount}</p>
             </div>
           </div>
         </div>
@@ -80,7 +80,7 @@ export function ActivityOverview({
 
       {/* 커밋 기록 */}
       <div>
-        <div className="mb-6">
+        <div className="mb-8">
           <h2 className="text-lg font-semibold text-gray-900">최근 일주일간 {totalWeekCommits}번 커밋했어요</h2>
           <p className="mt-1 text-sm text-gray-500">
             {formatDate(weekInfo.startDate)} ~ {formatDate(weekInfo.endDate)}
@@ -123,13 +123,13 @@ export function ActivityOverview({
             })}
           </div>
 
-          <div className="flex items-center gap-4 border-t border-gray-100 pt-4">
+          <div className="flex flex-wrap items-center justify-center gap-4 border-t border-gray-100 pt-4">
             <div className="flex items-center gap-2 rounded-lg bg-[#FFF5F5] px-3 py-1.5">
               <Flame className="h-4 w-4 text-[#FF7D69]" />
               <span className="text-xs font-medium text-[#FF7D69]">{streakDays}일 연속</span>
             </div>
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-accent" />
+              <Sparkle className="h-4 w-4 text-accent" />
               <span className="text-sm text-gray-500">{dayLabels[mostActiveDayIndex]}요일에 가장 활발했어요</span>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { LoginPage } from "@/pages/auth/LoginPage";
 import { SignupPage } from "@/pages/auth/SignupPage";
 import { LandingPage } from "@/pages/LandingPage";
 import { DashboardPage } from "@/pages/dashboard/DashboardPage";
+import { SettingsPage } from "@/pages/SettingsPage";
 import { ProjectListPage } from "@/pages/projects/ProjectListPage";
 import { ProjectCreatePage } from "@/pages/projects/ProjectCreatePage";
 import { ProjectDetailPage } from "@/pages/projects/ProjectDetailPage";
@@ -29,6 +30,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <DashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "settings",
+        element: (
+          <ProtectedRoute>
+            <SettingsPage />
           </ProtectedRoute>
         ),
       },

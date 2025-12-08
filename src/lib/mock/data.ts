@@ -47,6 +47,7 @@ export const mockProjects: ProjectListItem[] = [
     techStack: "React, TypeScript, Tailwind",
     lastCommitAt: "2025-12-04T10:30:00Z",
     totalCommits: 127,
+    targetDate: "2025-12-31", // D-23
   },
   {
     id: 2,
@@ -55,6 +56,7 @@ export const mockProjects: ProjectListItem[] = [
     techStack: "Next.js, Vercel",
     lastCommitAt: "2025-11-28T15:20:00Z",
     totalCommits: 45,
+    targetDate: "2025-12-15", // D-7 (급박)
   },
   {
     id: 3,
@@ -63,6 +65,7 @@ export const mockProjects: ProjectListItem[] = [
     techStack: "Gatsby, MDX",
     lastCommitAt: "2025-12-01T09:15:00Z",
     totalCommits: 89,
+    targetDate: "2025-12-10", // D-2 (급박)
   },
 ];
 

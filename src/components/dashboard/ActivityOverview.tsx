@@ -1,4 +1,4 @@
-import { Flame, Sparkle, PlayCircle, CircleCheckBig, FolderTree } from "lucide-react";
+import { GitCommitHorizontal, Sparkle, PlayCircle, CircleCheckBig, FolderTree } from "lucide-react";
 import { getCommitIntensity } from "@/utils/dashboard";
 
 interface ActivityOverviewProps {
@@ -124,9 +124,9 @@ export function ActivityOverview({
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4 border-t border-gray-100 pt-4">
-            <div className="flex items-center gap-2 rounded-lg bg-[#FFF5F5] px-3 py-1.5">
-              <Flame className="h-4 w-4 text-[#FF7D69]" />
-              <span className="text-xs font-medium text-[#FF7D69]">{streakDays}일 연속</span>
+            <div className="flex items-center gap-2 rounded-lg bg-accent-50 px-3 py-1.5">
+              <GitCommitHorizontal className="h-4 w-4 text-accent" />
+              <span className="text-xs font-medium text-accent">{streakDays}일 연속</span>
             </div>
             <div className="flex items-center gap-2">
               <Sparkle className="h-4 w-4 text-accent" />

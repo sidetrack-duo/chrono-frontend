@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { GitCommit, Calendar, ArrowRight, Target, CircleAlert, Flame } from "lucide-react";
+import { GitCommitVertical, Calendar, ArrowRight, Target, CircleAlert, Flame } from "lucide-react";
 import { ProjectListItem, ProjectStatus } from "@/types/api";
 import { Badge } from "@/components/common/Badge";
 import { getDaysSinceLastCommit } from "@/utils/dashboard";
@@ -60,7 +60,7 @@ export function ProjectPreview({
         {project.totalCommits !== undefined && (
           <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-4">
             <div className="flex items-center gap-2 text-sm text-gray-600">
-              <GitCommit className="h-4 w-4 text-primary" />
+              <GitCommitVertical className="h-4 w-4 text-primary" />
               <span>총 커밋</span>
             </div>
             <span className="text-base font-medium text-gray-900">{project.totalCommits}</span>

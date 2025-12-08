@@ -1,5 +1,5 @@
 import React from "react";
-import { GitCommit, CircleAlert, Flame } from "lucide-react";
+import { CircleAlert, Flame } from "lucide-react";
 import { ProjectListItem, ProjectStatus } from "@/types/api";
 import { Badge } from "@/components/common/Badge";
 import { getDaysSinceLastCommit } from "@/utils/dashboard";
@@ -109,10 +109,9 @@ export function TimelineSection({
                     <h4 className="font-medium text-gray-900 truncate">{project.title}</h4>
                     <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
                       {project.totalCommits !== undefined && (
-                        <span className="flex items-center gap-1">
-                          <GitCommit className="h-3 w-3" />
+                        <span>
                           <span className={showRank ? "font-semibold text-gray-900" : ""}>{project.totalCommits}</span>
-                          <span>커밋</span>
+                          <span> 커밋</span>
                         </span>
                       )}
                       <span>·</span>

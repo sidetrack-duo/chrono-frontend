@@ -233,12 +233,12 @@ export function ProjectListPage() {
         <div className="lg:col-span-2">
           <div className="rounded-xl bg-white p-6 shadow-sm">
             {/* Filters & Sort */}
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mb-6 flex items-center gap-2 sm:justify-between">
               {/* Status Filter */}
-              <div className="flex items-center gap-2">
+              <div className="mr-3 flex flex-shrink items-center gap-1.5 sm:mr-0 sm:gap-2">
                 <button
                   onClick={() => setFilterStatus("all")}
-                  className={`flex cursor-pointer items-center justify-center rounded-full px-3.5 py-2.5 text-xs font-medium transition-colors whitespace-nowrap ${
+                  className={`flex cursor-pointer items-center justify-center rounded-full px-2.5 py-2 text-xs font-medium transition-colors whitespace-nowrap sm:px-3.5 sm:py-2.5 ${
                     filterStatus === "all"
                       ? "bg-zinc-50 text-gray-900"
                       : "text-gray-900 hover:bg-zinc-50"
@@ -248,7 +248,7 @@ export function ProjectListPage() {
                 </button>
                 <button
                   onClick={() => setFilterStatus("in_progress")}
-                  className={`flex cursor-pointer items-center justify-center rounded-full px-3.5 py-2.5 text-xs font-medium transition-colors whitespace-nowrap ${
+                  className={`flex cursor-pointer items-center justify-center rounded-full px-2.5 py-2 text-xs font-medium transition-colors whitespace-nowrap sm:px-3.5 sm:py-2.5 ${
                     filterStatus === "in_progress"
                       ? "bg-primary-50 text-primary"
                       : "text-gray-900 hover:bg-zinc-50"
@@ -258,7 +258,7 @@ export function ProjectListPage() {
                 </button>
                 <button
                   onClick={() => setFilterStatus("completed")}
-                  className={`flex cursor-pointer items-center justify-center rounded-full px-3.5 py-2.5 text-xs font-medium transition-colors whitespace-nowrap ${
+                  className={`flex cursor-pointer items-center justify-center rounded-full px-2.5 py-2 text-xs font-medium transition-colors whitespace-nowrap sm:px-3.5 sm:py-2.5 ${
                     filterStatus === "completed"
                       ? "bg-accent-50 text-accent"
                       : "text-gray-900 hover:bg-zinc-50"
@@ -269,17 +269,17 @@ export function ProjectListPage() {
               </div>
 
               {/* Sort */}
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="h-[38px] w-full appearance-none rounded-lg border border-gray-300 bg-white pl-3 pr-8 text-xs text-gray-700 transition-colors hover:border-gray-400 focus:border-primary focus:outline-none"
+                  className="h-[38px] w-auto min-w-[100px] appearance-none rounded-lg border border-gray-300 bg-white pl-2.5 pr-7 text-xs text-gray-700 transition-colors hover:border-gray-400 focus:border-primary focus:outline-none sm:min-w-[120px] sm:pl-3 sm:pr-8"
                 >
                   <option value="created">최근생성순</option>
                   <option value="recent">최근커밋순</option>
                   <option value="commits">커밋많은순</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+                <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400 sm:right-2" />
               </div>
             </div>
 

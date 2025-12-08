@@ -14,7 +14,7 @@ export function ProjectListPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
-  const [sortBy, setSortBy] = useState<SortOption>("recent");
+  const [sortBy, setSortBy] = useState<SortOption>("created");
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -49,14 +49,18 @@ export function ProjectListPage() {
 
     // Sort
     const sorted = [...filtered].sort((a, b) => {
-      if (sortBy === "recent") {
+      if (sortBy === "created") {
+        if (!a.startDate) return 1;
+        if (!b.startDate) return -1;
+        return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+      } else if (sortBy === "recent") {
         if (!a.lastCommitAt) return 1;
         if (!b.lastCommitAt) return -1;
         return new Date(b.lastCommitAt).getTime() - new Date(a.lastCommitAt).getTime();
       } else if (sortBy === "commits") {
         return (b.totalCommits || 0) - (a.totalCommits || 0);
       }
-      return 0; // created - API에서 이미 정렬됨
+      return 0;
     });
 
     return sorted;
@@ -75,17 +79,31 @@ export function ProjectListPage() {
     const thisMonthProjects: ProjectListItem[] = [];
     const olderProjects: ProjectListItem[] = [];
 
+    // 커밋 많은 순이면 그룹핑 안 함
+    if (sortBy === "commits") {
+      return {
+        todayProjects: filteredAndSortedProjects,
+        thisWeekProjects: [],
+        thisMonthProjects: [],
+        olderProjects: [],
+      };
+    }
+
+    // 생성순 vs 최근 활동순에 따라 다른 날짜 기준
+    const dateField = sortBy === "created" ? "startDate" : "lastCommitAt";
+
     filteredAndSortedProjects.forEach((project) => {
-      if (!project.lastCommitAt) {
+      const dateValue = project[dateField];
+      if (!dateValue) {
         olderProjects.push(project);
         return;
       }
-      const commitDate = new Date(project.lastCommitAt);
-      if (commitDate >= today) {
+      const targetDate = new Date(dateValue);
+      if (targetDate >= today) {
         todayProjects.push(project);
-      } else if (commitDate >= weekAgo) {
+      } else if (targetDate >= weekAgo) {
         thisWeekProjects.push(project);
-      } else if (commitDate >= monthAgo) {
+      } else if (targetDate >= monthAgo) {
         thisMonthProjects.push(project);
       } else {
         olderProjects.push(project);
@@ -93,7 +111,7 @@ export function ProjectListPage() {
     });
 
     return { todayProjects, thisWeekProjects, thisMonthProjects, olderProjects };
-  }, [filteredAndSortedProjects]);
+  }, [filteredAndSortedProjects, sortBy]);
 
   const selectedProject = useMemo(() => {
     return projects.find((p) => p.id === selectedProjectId);
@@ -198,97 +216,113 @@ export function ProjectListPage() {
         </Link>
       </div>
 
-      {/* Filters & Sort */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {/* Status Filter */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setFilterStatus("all")}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              filterStatus === "all"
-                ? "bg-primary text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            전체 ({projects.length})
-          </button>
-          <button
-            onClick={() => setFilterStatus("in_progress")}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              filterStatus === "in_progress"
-                ? "bg-primary text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            진행 중 ({projects.filter((p) => p.status === ProjectStatus.IN_PROGRESS).length})
-          </button>
-          <button
-            onClick={() => setFilterStatus("completed")}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              filterStatus === "completed"
-                ? "bg-primary text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            완료 ({projects.filter((p) => p.status === ProjectStatus.COMPLETED).length})
-          </button>
-        </div>
-
-        {/* Sort */}
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as SortOption)}
-          className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 transition-colors hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          <option value="recent">최근 활동순</option>
-          <option value="commits">커밋 많은 순</option>
-          <option value="created">생성순</option>
-        </select>
-      </div>
-
       {/* Timeline + Preview Layout */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Timeline List */}
         <div className="lg:col-span-2">
           <div className="rounded-xl bg-white p-6 shadow-sm">
+            {/* Filters & Sort */}
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              {/* Status Filter */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setFilterStatus("all")}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                    filterStatus === "all"
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  전체 ({projects.length})
+                </button>
+                <button
+                  onClick={() => setFilterStatus("in_progress")}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                    filterStatus === "in_progress"
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  진행 중 ({projects.filter((p) => p.status === ProjectStatus.IN_PROGRESS).length})
+                </button>
+                <button
+                  onClick={() => setFilterStatus("completed")}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                    filterStatus === "completed"
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  완료 ({projects.filter((p) => p.status === ProjectStatus.COMPLETED).length})
+                </button>
+              </div>
+
+              {/* Sort */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 transition-colors hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="created">생성순</option>
+                <option value="recent">최근 활동순</option>
+                <option value="commits">커밋 많은 순</option>
+              </select>
+            </div>
+
+            {/* Timeline Content */}
             <div className="relative">
               {/* Timeline Groups */}
-              <TimelineGroup
-                title="오늘"
-                projects={groupedProjects.todayProjects}
-                selectedId={selectedProjectId}
-                onSelect={setSelectedProjectId}
-                getTimeLabel={getTimeLabel}
-                getDday={getDday}
-                getDdayLabel={getDdayLabel}
-              />
-              <TimelineGroup
-                title="이번 주"
-                projects={groupedProjects.thisWeekProjects}
-                selectedId={selectedProjectId}
-                onSelect={setSelectedProjectId}
-                getTimeLabel={getTimeLabel}
-                getDday={getDday}
-                getDdayLabel={getDdayLabel}
-              />
-              <TimelineGroup
-                title="이번 달"
-                projects={groupedProjects.thisMonthProjects}
-                selectedId={selectedProjectId}
-                onSelect={setSelectedProjectId}
-                getTimeLabel={getTimeLabel}
-                getDday={getDday}
-                getDdayLabel={getDdayLabel}
-              />
-              <TimelineGroup
-                title="이전"
-                projects={groupedProjects.olderProjects}
-                selectedId={selectedProjectId}
-                onSelect={setSelectedProjectId}
-                getTimeLabel={getTimeLabel}
-                getDday={getDday}
-                getDdayLabel={getDdayLabel}
-              />
+              {sortBy === "commits" ? (
+                <TimelineGroup
+                  title="전체"
+                  projects={groupedProjects.todayProjects}
+                  selectedId={selectedProjectId}
+                  onSelect={setSelectedProjectId}
+                  getTimeLabel={getTimeLabel}
+                  getDday={getDday}
+                  getDdayLabel={getDdayLabel}
+                  showRank={true}
+                />
+              ) : (
+                <>
+                  <TimelineGroup
+                    title={sortBy === "recent" ? "오늘 활동" : "오늘"}
+                    projects={groupedProjects.todayProjects}
+                    selectedId={selectedProjectId}
+                    onSelect={setSelectedProjectId}
+                    getTimeLabel={getTimeLabel}
+                    getDday={getDday}
+                    getDdayLabel={getDdayLabel}
+                  />
+                  <TimelineGroup
+                    title={sortBy === "recent" ? "이번 주 활동" : "이번 주"}
+                    projects={groupedProjects.thisWeekProjects}
+                    selectedId={selectedProjectId}
+                    onSelect={setSelectedProjectId}
+                    getTimeLabel={getTimeLabel}
+                    getDday={getDday}
+                    getDdayLabel={getDdayLabel}
+                  />
+                  <TimelineGroup
+                    title={sortBy === "recent" ? "이번 달 활동" : "이번 달"}
+                    projects={groupedProjects.thisMonthProjects}
+                    selectedId={selectedProjectId}
+                    onSelect={setSelectedProjectId}
+                    getTimeLabel={getTimeLabel}
+                    getDday={getDday}
+                    getDdayLabel={getDdayLabel}
+                  />
+                  <TimelineGroup
+                    title={sortBy === "recent" ? "이전 활동" : "이전"}
+                    projects={groupedProjects.olderProjects}
+                    selectedId={selectedProjectId}
+                    onSelect={setSelectedProjectId}
+                    getTimeLabel={getTimeLabel}
+                    getDday={getDday}
+                    getDdayLabel={getDdayLabel}
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -326,6 +360,7 @@ function TimelineGroup({
   getTimeLabel,
   getDday,
   getDdayLabel,
+  showRank = false,
 }: {
   title: string;
   projects: ProjectListItem[];
@@ -334,6 +369,7 @@ function TimelineGroup({
   getTimeLabel: (daysAgo: number | null) => string;
   getDday: (targetDate?: string) => number | null;
   getDdayLabel: (dday: number | null) => { label: string; isUrgent?: boolean; isOverdue?: boolean } | null;
+  showRank?: boolean;
 }) {
   if (projects.length === 0) return null;
 
@@ -351,11 +387,12 @@ function TimelineGroup({
 
       {/* Project Items */}
       <div className="space-y-2 pl-8">
-        {projects.map((project) => {
+        {projects.map((project, index) => {
           const daysAgo = getDaysSinceLastCommit(project);
           const isSelected = project.id === selectedId;
           const dday = getDday(project.targetDate);
           const ddayInfo = getDdayLabel(dday);
+          const rank = index + 1;
 
           return (
             <button
@@ -367,12 +404,30 @@ function TimelineGroup({
                   : "border-gray-200 bg-white hover:border-primary/50 hover:bg-gray-50"
               }`}
             >
-              {/* Timeline Dot */}
-              <div
-                className={`absolute -left-8 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full ${
-                  isSelected ? "bg-primary" : "bg-gray-300"
-                }`}
-              ></div>
+              {/* Timeline Dot or Rank */}
+              {showRank ? (
+                <div
+                  className={`absolute -left-8 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-[10px] font-bold ${
+                    rank === 1
+                      ? "bg-amber-400 text-white"
+                      : rank === 2
+                      ? "bg-gray-300 text-white"
+                      : rank === 3
+                      ? "bg-amber-600 text-white"
+                      : isSelected
+                      ? "bg-primary text-white"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {rank}
+                </div>
+              ) : (
+                <div
+                  className={`absolute -left-8 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full ${
+                    isSelected ? "bg-primary" : "bg-gray-300"
+                  }`}
+                ></div>
+              )}
 
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
@@ -381,9 +436,12 @@ function TimelineGroup({
                     {project.totalCommits !== undefined && (
                       <span className="flex items-center gap-1">
                         <GitCommit className="h-3 w-3" />
-                        {project.totalCommits}
+                        <span className={showRank ? "font-semibold text-gray-900" : ""}>{project.totalCommits}</span>
+                        <span>커밋</span>
                       </span>
                     )}
+                    <span>·</span>
+                    <span>{getTimeLabel(daysAgo)}</span>
                     {ddayInfo && (
                       <>
                         <span>·</span>
@@ -402,8 +460,6 @@ function TimelineGroup({
                         </span>
                       </>
                     )}
-                    <span>·</span>
-                    <span>{getTimeLabel(daysAgo)}</span>
                   </div>
                 </div>
               </div>

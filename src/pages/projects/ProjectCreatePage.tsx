@@ -77,13 +77,23 @@ export function ProjectCreatePage() {
     setIsLoading(true);
 
     try {
-      await createProject({
-        title: title.trim(),
-        description: description.trim() || undefined,
-        targetDate: targetDate || undefined,
-        techStack: techStack.trim() || undefined,
-        repoName,
-      });
+      const githubUsername = user?.githubUsername;
+      if (!githubUsername) {
+        setError("GitHub username이 설정되지 않았습니다.");
+        setIsLoading(false);
+        return;
+      }
+      
+      await createProject(
+        {
+          title: title.trim(),
+          description: description.trim() || undefined,
+          targetDate: targetDate || undefined,
+          techStack: techStack.trim() || undefined,
+          repoName,
+        },
+        githubUsername
+      );
       navigate("/projects");
     } catch (err) {
       if (isApiError(err)) {
@@ -97,7 +107,7 @@ export function ProjectCreatePage() {
   };
 
   const repoOptions = repos.map((repo) => ({
-    value: repo.name,
+    value: repo.fullName, // 백엔드 응답에 맞춰 fullName 사용
     label: repo.fullName,
   }));
 

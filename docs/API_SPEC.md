@@ -2,9 +2,10 @@
 
 **Chrono – API 명세서**
 
-버전: v1.0
+버전: v1.1
 
-작성일: 2025-12-02
+작성일: 2025-12-02  
+수정일: 2025-12-XX
 
 기반 문서: PRD.md, FRS.md
 
@@ -131,6 +132,49 @@ GitHub 관련 에러 코드:
 
 ---
 
+## 🔹 4.3 이메일 인증코드 발송
+
+### `POST /api/auth/email/send`
+
+**인증:** 불필요
+
+### Request
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+### Response 200
+
+이메일 인증코드 발송 완료
+
+---
+
+## 🔹 4.4 이메일 인증코드 확인
+
+### `POST /api/auth/email/verify`
+
+**인증:** 불필요
+
+### Request
+
+```json
+{
+  "email": "user@example.com",
+  "code": "A1B2C3D4"
+}
+```
+
+### Response 200
+
+인증코드 확인 완료
+
+**비고:** 회원가입 전 이메일 인증이 완료되어야 함
+
+---
+
 # 5. User API
 
 ## 🔹 5.1 내 정보 조회
@@ -186,7 +230,7 @@ GitHub 관련 에러 코드:
 
 ### `PUT /api/users/me`
 
-**인증:** 필요
+**인증:** 필요
 
 ### Request
 
@@ -208,6 +252,56 @@ GitHub 관련 에러 코드:
   "githubUsername": "jimin-dev"
 }
 ```
+
+---
+
+## 🔹 5.4 비밀번호 변경
+
+### `PUT /api/users/me/password`
+
+**인증:** 필요
+
+### Request
+
+```json
+{
+  "currentPassword": "현재비밀번호",
+  "newPassword": "새비밀번호123!"
+}
+```
+
+**조건:** 새 비밀번호는 영문, 숫자, 특수문자 포함 8자 이상
+
+### Response 200
+
+```json
+{
+  "message": "비밀번호가 변경되었습니다."
+}
+```
+
+### Error
+
+- 현재 비밀번호 불일치 → VALIDATION_ERROR
+- 새 비밀번호 조건 불만족 → VALIDATION_ERROR
+
+---
+
+## 🔹 5.5 회원탈퇴
+
+### `DELETE /api/users/me`
+
+**인증:** 필요
+
+### Request
+
+본문 없음 (인증 토큰만 필요)
+
+### Response 204
+
+내용 없음
+
+**비고:** 회원 탈퇴 시 관련 프로젝트 및 커밋 데이터 처리 필요
 
 ---
 

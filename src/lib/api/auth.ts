@@ -1,5 +1,13 @@
 import { apiClient } from "./client";
-import { LoginRequest, LoginResponse, SignupRequest } from "@/types/api";
+import { LoginRequest, LoginResponse, SignupRequest, EmailVerificationSendRequest, EmailVerificationVerifyRequest } from "@/types/api";
+
+export async function sendEmailVerification(data: EmailVerificationSendRequest): Promise<void> {
+  await apiClient.post("/auth/email/send", data);
+}
+
+export async function verifyEmailCode(data: EmailVerificationVerifyRequest): Promise<void> {
+  await apiClient.post("/auth/email/verify", data);
+}
 
 export async function signup(data: SignupRequest): Promise<void> {
   await apiClient.post("/auth/signup", data);

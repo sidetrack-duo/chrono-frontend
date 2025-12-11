@@ -1,12 +1,23 @@
 import { apiClient } from "./client";
-import { GitHubRepo } from "@/types/api";
+import { GitHubRepo, GitHubUsernameValidation, GitHubConnectBasicRequest, GitHubConnectBasicResponse } from "@/types/api";
 import { mockApi } from "@/lib/mock/api";
+
+export async function validateGitHubUsername(username: string): Promise<GitHubUsernameValidation> {
+  const response = await apiClient.get<GitHubUsernameValidation>("/github/validate", {
+    params: { username },
+  });
+  return response.data;
+}
+
+export async function connectGitHubBasic(data: GitHubConnectBasicRequest): Promise<GitHubConnectBasicResponse> {
+  const response = await apiClient.post<GitHubConnectBasicResponse>("/github/connect-basic", data);
+  return response.data;
+}
 
 export async function getRepos(): Promise<GitHubRepo[]> {
   if (import.meta.env.DEV && import.meta.env.VITE_USE_MOCK === "true") {
     return mockApi.github.getRepos();
   }
-  // 백엔드 응답 형식에 맞춤
   const response = await apiClient.get<GitHubRepo[]>("/github/repos");
   return response.data;
 }

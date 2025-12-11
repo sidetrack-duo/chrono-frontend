@@ -5,9 +5,11 @@ import { Input } from "@/components/common/Input";
 import { Card } from "@/components/common/Card";
 import { signup, sendEmailVerification, verifyEmailCode } from "@/lib/api/auth";
 import { isApiError } from "@/lib/api/client";
+import { useToastStore } from "@/stores/toastStore";
 
 export function SignupPage() {
   const navigate = useNavigate();
+  const showToast = useToastStore((state) => state.showToast);
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -18,8 +20,11 @@ export function SignupPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [nickname, setNickname] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [emailMessage, setEmailMessage] = useState<string | null>(null);
+  const [verificationCodeMessage, setVerificationCodeMessage] = useState<string | null>(null);
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  const [passwordConfirmMessage, setPasswordConfirmMessage] = useState<string | null>(null);
+  const [nicknameMessage, setNicknameMessage] = useState<string | null>(null);
 
   const validatePassword = (pwd: string): { valid: boolean; message?: string } => {
     if (pwd.length < 8) {
@@ -37,24 +42,33 @@ export function SignupPage() {
     return { valid: true };
   };
 
+  const validateNickname = (name: string): { valid: boolean; message?: string } => {
+    if (!name.trim()) {
+      return { valid: false, message: "닉네임을 입력해주세요." };
+    }
+    if (name.length > 20) {
+      return { valid: false, message: "닉네임은 20자 이하여야 합니다." };
+    }
+    return { valid: true };
+  };
+
   const handleSendVerificationCode = async () => {
     if (!email.trim()) {
-      setError("이메일을 입력해주세요.");
+      setEmailMessage("이메일을 입력해주세요.");
       return;
     }
 
-    setError(null);
-    setSuccess(null);
+    setEmailMessage(null);
     setIsSendingCode(true);
 
     try {
       await sendEmailVerification({ email: email.trim() });
-      setSuccess("인증코드가 발송되었습니다. 이메일을 확인해주세요.");
+      setEmailMessage("인증코드가 발송되었습니다.");
     } catch (err) {
       if (isApiError(err)) {
-        setError(err.message || "인증코드 발송에 실패했습니다.");
+        setEmailMessage(err.message || "인증코드 발송에 실패했습니다.");
       } else {
-        setError("인증코드 발송 중 오류가 발생했습니다.");
+        setEmailMessage("인증코드 발송 중 오류가 발생했습니다.");
       }
     } finally {
       setIsSendingCode(false);
@@ -63,23 +77,22 @@ export function SignupPage() {
 
   const handleVerifyCode = async () => {
     if (!verificationCode.trim()) {
-      setError("인증코드를 입력해주세요.");
+      setVerificationCodeMessage("인증코드를 입력해주세요.");
       return;
     }
 
-    setError(null);
-    setSuccess(null);
+    setVerificationCodeMessage(null);
     setIsVerifyingCode(true);
 
     try {
       await verifyEmailCode({ email: email.trim(), code: verificationCode.trim() });
       setEmailVerified(true);
-      setSuccess("이메일 인증이 완료되었습니다.");
+      setVerificationCodeMessage("인증이 완료되었습니다.");
     } catch (err) {
       if (isApiError(err)) {
-        setError(err.message || "인증코드 확인에 실패했습니다.");
+        setVerificationCodeMessage(err.message || "인증코드 확인에 실패했습니다.");
       } else {
-        setError("인증코드 확인 중 오류가 발생했습니다.");
+        setVerificationCodeMessage("인증코드 확인 중 오류가 발생했습니다.");
       }
     } finally {
       setIsVerifyingCode(false);
@@ -88,34 +101,47 @@ export function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
     if (!emailVerified) {
-      setError("이메일 인증을 완료해주세요.");
+      showToast("이메일 인증을 완료해주세요.", "error");
       return;
     }
 
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.valid) {
-      setError(passwordValidation.message || "비밀번호 조건을 만족하지 않습니다.");
+      setPasswordMessage(passwordValidation.message || "비밀번호 조건을 만족하지 않습니다.");
       return;
     }
+    setPasswordMessage(null);
 
     if (password !== passwordConfirm) {
-      setError("비밀번호가 일치하지 않습니다.");
+      setPasswordConfirmMessage("비밀번호가 일치하지 않습니다.");
       return;
     }
+    setPasswordConfirmMessage(null);
+
+    const nicknameValidation = validateNickname(nickname);
+    if (!nicknameValidation.valid) {
+      setNicknameMessage(nicknameValidation.message || "닉네임 조건을 만족하지 않습니다.");
+      return;
+    }
+    setNicknameMessage(null);
 
     setIsLoading(true);
 
     try {
-      await signup({ email, password, nickname });
+      await signup({ email, password, nickname: nickname.trim() });
+      showToast("회원가입이 완료되었습니다.", "success");
       navigate("/login", { state: { message: "회원가입이 완료되었습니다. 로그인해주세요." } });
     } catch (err) {
       if (isApiError(err)) {
-        setError(err.message || "회원가입에 실패했습니다.");
+        const errorMessage = err.message || "회원가입에 실패했습니다.";
+        showToast(errorMessage, "error");
+        if (errorMessage.includes("닉네임")) {
+          setNicknameMessage("사용 중인 닉네임입니다.");
+        }
       } else {
-        setError("회원가입 중 오류가 발생했습니다.");
+        showToast("회원가입 중 오류가 발생했습니다.", "error");
       }
     } finally {
       setIsLoading(false);
@@ -138,23 +164,19 @@ export function SignupPage() {
 
         <Card className="p-6 sm:p-8 border-gray-100 shadow-lg shadow-zinc-100/50">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-                {error}
-              </div>
-            )}
-            {success && (
-              <div className="rounded-lg bg-green-50 p-3 text-sm text-green-600">
-                {success}
-              </div>
-            )}
-
             <div className="space-y-4">
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    이메일
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-medium text-gray-700">
+                      이메일
+                    </label>
+                    {emailMessage && (
+                      <span className={`text-xs ${emailMessage.includes("발송되었습니다") ? "text-primary-dark" : "text-accent-dark"}`}>
+                        {emailMessage}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex">
                     <Input
                       id="email"
@@ -165,6 +187,8 @@ export function SignupPage() {
                         setEmail(e.target.value);
                         setEmailVerified(false);
                         setVerificationCode("");
+                        setEmailMessage(null);
+                        setVerificationCodeMessage(null);
                       }}
                       disabled={emailVerified}
                       required
@@ -177,7 +201,7 @@ export function SignupPage() {
                       onClick={handleSendVerificationCode}
                       disabled={emailVerified || isSendingCode}
                       isLoading={isSendingCode}
-                      className="h-10 rounded-l-none whitespace-nowrap px-4"
+                      className="h-10 rounded-l-none whitespace-nowrap px-4 min-w-[100px]"
                     >
                       {emailVerified ? "인증완료" : "인증하기"}
                     </Button>
@@ -186,16 +210,27 @@ export function SignupPage() {
 
                 {!emailVerified && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      인증코드
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-sm font-medium text-gray-700">
+                        인증코드
+                      </label>
+                      {verificationCodeMessage && (
+                        <span className={`text-xs ${verificationCodeMessage.includes("완료") ? "text-primary-dark" : "text-accent-dark"}`}>
+                          {verificationCodeMessage}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex">
                       <Input
                         id="verificationCode"
                         type="text"
                         placeholder="인증코드를 입력하세요"
                         value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                          setVerificationCode(value);
+                          setVerificationCodeMessage(null);
+                        }}
                         maxLength={8}
                         className="flex-1 rounded-r-none border-r-0"
                         label=""
@@ -205,7 +240,7 @@ export function SignupPage() {
                         onClick={handleVerifyCode}
                         disabled={!verificationCode.trim() || isVerifyingCode}
                         isLoading={isVerifyingCode}
-                        className="h-10 rounded-l-none whitespace-nowrap px-4"
+                        className="h-10 rounded-l-none whitespace-nowrap px-4 min-w-[100px]"
                       >
                         인증확인
                       </Button>
@@ -213,60 +248,111 @@ export function SignupPage() {
                   </div>
                 )}
 
-                {emailVerified && (
-                  <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700 flex items-center gap-1.5">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    이메일 인증이 완료되었습니다.
-                  </div>
-                )}
               </div>
 
               <div className={emailVerified ? "space-y-4" : "space-y-4 opacity-50 pointer-events-none"}>
                 <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-medium text-gray-700">
+                      비밀번호
+                    </label>
+                    {passwordMessage && (
+                      <span className="text-xs text-accent-dark">
+                        {passwordMessage}
+                      </span>
+                    )}
+                  </div>
                   <Input
                     id="password"
                     type="password"
-                    label="비밀번호"
                     placeholder="영문, 숫자, 특수문자 포함 8자 이상"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setPassword(value);
+                      if (value && !validatePassword(value).valid) {
+                        setPasswordMessage(validatePassword(value).message || "비밀번호 조건을 만족하지 않습니다.");
+                      } else {
+                        setPasswordMessage(null);
+                      }
+                      if (passwordConfirm && value !== passwordConfirm) {
+                        setPasswordConfirmMessage(null);
+                      }
+                    }}
                     required
                     autoComplete="new-password"
-                    error={password && !validatePassword(password).valid ? validatePassword(password).message : undefined}
-                    helperText={!password ? "영문, 숫자, 특수문자를 포함하여 8자 이상 입력하세요" : undefined}
+                    label=""
                   />
                 </div>
                 <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-medium text-gray-700">
+                      비밀번호 확인
+                    </label>
+                    {passwordConfirmMessage && (
+                      <span className="text-xs text-accent-dark">
+                        {passwordConfirmMessage}
+                      </span>
+                    )}
+                  </div>
                   <Input
                     id="passwordConfirm"
                     type="password"
-                    label="비밀번호 확인"
                     placeholder="비밀번호를 다시 입력하세요"
                     value={passwordConfirm}
-                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setPasswordConfirm(value);
+                      if (value && password && value !== password) {
+                        setPasswordConfirmMessage("비밀번호가 일치하지 않습니다.");
+                      } else {
+                        setPasswordConfirmMessage(null);
+                      }
+                    }}
                     required
                     autoComplete="new-password"
-                    error={passwordConfirm && password !== passwordConfirm ? "비밀번호가 일치하지 않습니다." : undefined}
+                    label=""
                   />
                 </div>
-                <Input
-                  id="nickname"
-                  type="text"
-                  label="닉네임"
-                  placeholder="닉네임을 입력하세요"
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                  required
-                  autoComplete="nickname"
-                />
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-medium text-gray-700">
+                      닉네임
+                    </label>
+                    {nicknameMessage && (
+                      <span className="text-xs text-accent-dark">
+                        {nicknameMessage}
+                      </span>
+                    )}
+                  </div>
+                  <Input
+                    id="nickname"
+                    type="text"
+                    placeholder="닉네임을 입력하세요 (최대 20자)"
+                    value={nickname}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value.length <= 20) {
+                        setNickname(value);
+                        if (value && !validateNickname(value).valid) {
+                          setNicknameMessage(validateNickname(value).message || "닉네임 조건을 만족하지 않습니다.");
+                        } else {
+                          setNicknameMessage(null);
+                        }
+                      }
+                    }}
+                    maxLength={20}
+                    required
+                    autoComplete="nickname"
+                    label=""
+                  />
+                </div>
               </div>
             </div>
 
             <Button
               type="submit"
-              className="w-full h-11 text-base"
+              className="w-full"
               isLoading={isLoading}
               disabled={!emailVerified}
             >

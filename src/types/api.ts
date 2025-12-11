@@ -1,12 +1,8 @@
-// API 응답 타입 정의 (API_SPEC.md 기반)
-
-// 공통 에러 응답
 export type ApiError = {
   message: string;
   code: string;
 };
 
-// 공통 에러 코드
 export enum ErrorCode {
   UNAUTHORIZED = "UNAUTHORIZED",
   FORBIDDEN = "FORBIDDEN",
@@ -19,7 +15,15 @@ export enum ErrorCode {
   GITHUB_REPO_NOT_FOUND = "GITHUB_REPO_NOT_FOUND",
 }
 
-// ========== Auth ==========
+export interface EmailVerificationSendRequest {
+  email: string;
+}
+
+export interface EmailVerificationVerifyRequest {
+  email: string;
+  code: string;
+}
+
 export interface SignupRequest {
   email: string;
   password: string;
@@ -42,7 +46,6 @@ export interface LoginResponse {
   user: User;
 }
 
-// ========== User ==========
 export interface User {
   id: number;
   email: string;
@@ -64,8 +67,25 @@ export interface UpdateProfileRequest {
   bio?: string;
 }
 
-// ========== GitHub ==========
-// 백엔드 GithubRepoDto에 맞춘 타입
+export interface GitHubUsernameValidation {
+  valid: boolean;
+  username: string;
+  avatarUrl: string | null;
+  message: string;
+}
+
+export interface GitHubConnectBasicRequest {
+  username: string;
+}
+
+export interface GitHubConnectBasicResponse {
+  connected: boolean;
+  type: "BASIC" | "FULL";
+  username: string;
+  avatarUrl?: string;
+  message: string;
+}
+
 export interface GitHubRepo {
   repoId: number;
   repoName: string;
@@ -84,7 +104,6 @@ export interface CommitStats {
   lastCommitAt: string;
 }
 
-// ========== Project ==========
 export enum ProjectStatus {
   IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
@@ -132,7 +151,6 @@ export interface ProjectListItem {
   startDate?: string;
 }
 
-// ========== Dashboard ==========
 export interface DashboardSummary {
   inProgressCount: number;
   completedCount: number;
@@ -140,8 +158,8 @@ export interface DashboardSummary {
 }
 
 export interface WeeklyCommit {
-  dayOfWeek: string; // "MON", "TUE", etc.
-  date: string; // "2025-11-17"
+  dayOfWeek: string;
+  date: string;
   count: number;
 }
 

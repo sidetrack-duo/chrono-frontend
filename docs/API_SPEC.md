@@ -387,7 +387,113 @@ Access Token 문자열 반환
 
 ---
 
-## 🔹 6.2 Repo 커밋 데이터 조회 (내부 호출)
+## 🔹 6.2 GitHub Username 유효성 검증
+
+### `GET /api/github/validate?username=simuneu`
+
+**인증:** 불필요
+
+### Request
+
+Query Parameter: `username` (String)
+
+### Response 200
+
+**성공 시:**
+```json
+{
+  "valid": true,
+  "username": "simuneu",
+  "avatarUrl": "https://github.com/simuneu.png",
+  "message": "존재하는 GitHub 사용자입니다."
+}
+```
+
+**실패 시:**
+```json
+{
+  "valid": false,
+  "username": "simuneuffff",
+  "avatarUrl": null,
+  "message": "존재하지 않는 GitHub 사용자입니다."
+}
+```
+
+**비고:** GitHub username 입력 시 실시간 유효성 검증에 활용 가능
+
+---
+
+## 🔹 6.3 GitHub 기본 연동
+
+### `POST /api/github/connect-basic`
+
+**인증:** 필요
+
+### Request
+
+```json
+{
+  "username": "simuneu"
+}
+```
+
+### Response 200
+
+```json
+{
+  "connected": true,
+  "type": "BASIC",
+  "username": "simuneu",
+  "avatarUrl": "https://avatars.githubusercontent.com/u/191446770?v=4",
+  "message": "기본 연동이 완료되었습니다."
+}
+```
+
+**비고:** 
+- Public repository만 접근 가능
+- MVP에서는 기본 방식으로 사용
+
+---
+
+## 🔹 6.4 GitHub PAT 연동
+
+### `POST /api/github/connect-pat`
+
+**인증:** 필요
+
+### Request
+
+```json
+{
+  "username": "simuneu",
+  "pat": "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+}
+```
+
+### Response 200
+
+```json
+{
+  "connected": true,
+  "type": "FULL",
+  "message": "github full연동 완료"
+}
+```
+
+**비고:**
+- PAT는 암호화되어 저장됨
+- Private repository 접근 가능
+- 향후 버전에서 기본 연동 후 PAT 입력 옵션 제공 예정
+- PAT 생성 가이드:
+  - https://github.com/settings/tokens?type=beta 이동
+  - [Generate new token] 클릭
+  - Repository access: All repositories 또는 필요한 레포만 선택
+  - Repository permissions: Contents (Read-only), Metadata (Read-only)
+  - User permissions: Email addresses (Read-only), Profile (Read-only)
+
+---
+
+## 🔹 6.5 Repo 커밋 데이터 조회 (내부 호출)
 
 ### 사용처: 프로젝트 생성 시 자동 호출
 
@@ -542,7 +648,50 @@ Access Token 문자열 반환
 
 ---
 
-# 8. Dashboard API
+# 8. Commit API
+
+## 🔹 8.1 커밋 동기화
+
+### `POST /api/projects/{projectId}/commits/sync`
+
+**인증:** 필요
+
+### Response 200
+
+```json
+{
+  "message": "커밋 동기화 완료",
+  "savedCount": 12
+}
+```
+
+**비고:** 프로젝트 상세 페이지에서 수동 커밋 동기화 버튼으로 활용 가능
+
+---
+
+## 🔹 8.2 커밋 통계 조회
+
+### `GET /api/projects/{projectId}/commits/summary`
+
+**인증:** 필요
+
+### Response 200
+
+```json
+{
+  "projectId": 2,
+  "totalCommits": 12,
+  "latestCommitDate": "2025-07-20T12:16:35",
+  "commitsThisWeek": 0,
+  "mostActiveDay": "Sunday"
+}
+```
+
+**비고:** 프로젝트 상세 페이지에서 커밋 통계 표시에 활용 가능
+
+---
+
+# 9. Dashboard API
 
 ## 🔹 8.1 대시보드 전체 데이터 조회
 
@@ -588,7 +737,7 @@ Access Token 문자열 반환
 
 ---
 
-# 9. 상태값 정의
+# 10. 상태값 정의
 
 ```tsx
 status ∈ {
@@ -600,7 +749,7 @@ status ∈ {
 
 ---
 
-# 10. GitHub API 호출 정책
+# 11. GitHub API 호출 정책
 
 | 내용               | 방식                                        |
 | ------------------ | ------------------------------------------- |

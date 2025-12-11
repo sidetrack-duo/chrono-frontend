@@ -21,6 +21,22 @@ export function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const validatePassword = (pwd: string): { valid: boolean; message?: string } => {
+    if (pwd.length < 8) {
+      return { valid: false, message: "비밀번호는 8자 이상이어야 합니다." };
+    }
+    if (!/[A-Za-z]/.test(pwd)) {
+      return { valid: false, message: "비밀번호는 영문자를 포함해야 합니다." };
+    }
+    if (!/\d/.test(pwd)) {
+      return { valid: false, message: "비밀번호는 숫자를 포함해야 합니다." };
+    }
+    if (!/[!@#$%^&*()_+\-={}\[\]|;:'",.<>/?`~]/.test(pwd)) {
+      return { valid: false, message: "비밀번호는 특수문자를 포함해야 합니다." };
+    }
+    return { valid: true };
+  };
+
   const handleSendVerificationCode = async () => {
     if (!email.trim()) {
       setError("이메일을 입력해주세요.");
@@ -79,13 +95,14 @@ export function SignupPage() {
       return;
     }
 
-    if (password !== passwordConfirm) {
-      setError("비밀번호가 일치하지 않습니다.");
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.message || "비밀번호 조건을 만족하지 않습니다.");
       return;
     }
 
-    if (password.length < 8) {
-      setError("비밀번호는 8자 이상이어야 합니다.");
+    if (password !== passwordConfirm) {
+      setError("비밀번호가 일치하지 않습니다.");
       return;
     }
 
@@ -207,26 +224,33 @@ export function SignupPage() {
               </div>
 
               <div className={emailVerified ? "space-y-4" : "space-y-4 opacity-50 pointer-events-none"}>
-                <Input
-                  id="password"
-                  type="password"
-                  label="비밀번호"
-                  placeholder="8자 이상 입력하세요"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="new-password"
-                />
-                <Input
-                  id="passwordConfirm"
-                  type="password"
-                  label="비밀번호 확인"
-                  placeholder="비밀번호를 다시 입력하세요"
-                  value={passwordConfirm}
-                  onChange={(e) => setPasswordConfirm(e.target.value)}
-                  required
-                  autoComplete="new-password"
-                />
+                <div>
+                  <Input
+                    id="password"
+                    type="password"
+                    label="비밀번호"
+                    placeholder="영문, 숫자, 특수문자 포함 8자 이상"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="new-password"
+                    error={password && !validatePassword(password).valid ? validatePassword(password).message : undefined}
+                    helperText={!password ? "영문, 숫자, 특수문자를 포함하여 8자 이상 입력하세요" : undefined}
+                  />
+                </div>
+                <div>
+                  <Input
+                    id="passwordConfirm"
+                    type="password"
+                    label="비밀번호 확인"
+                    placeholder="비밀번호를 다시 입력하세요"
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    required
+                    autoComplete="new-password"
+                    error={passwordConfirm && password !== passwordConfirm ? "비밀번호가 일치하지 않습니다." : undefined}
+                  />
+                </div>
                 <Input
                   id="nickname"
                   type="text"

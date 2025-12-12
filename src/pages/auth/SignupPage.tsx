@@ -208,45 +208,44 @@ export function SignupPage() {
                   </div>
                 </div>
 
-                {!emailVerified && (
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-sm font-medium text-gray-700">
-                        인증코드
-                      </label>
-                      {verificationCodeMessage && (
-                        <span className={`text-xs ${verificationCodeMessage.includes("완료") ? "text-primary-dark" : "text-accent-dark"}`}>
-                          {verificationCodeMessage}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex">
-                      <Input
-                        id="verificationCode"
-                        type="text"
-                        placeholder="인증코드를 입력하세요"
-                        value={verificationCode}
-                        onChange={(e) => {
-                          const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-                          setVerificationCode(value);
-                          setVerificationCodeMessage(null);
-                        }}
-                        maxLength={8}
-                        className="flex-1 rounded-r-none border-r-0"
-                        label=""
-                      />
-                      <Button
-                        type="button"
-                        onClick={handleVerifyCode}
-                        disabled={!verificationCode.trim() || isVerifyingCode}
-                        isLoading={isVerifyingCode}
-                        className="h-10 rounded-l-none whitespace-nowrap px-4 min-w-[100px]"
-                      >
-                        인증확인
-                      </Button>
-                    </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-medium text-gray-700">
+                      인증코드
+                    </label>
+                    {verificationCodeMessage && (
+                      <span className={`text-xs ${verificationCodeMessage.includes("완료") ? "text-primary-dark" : "text-accent-dark"}`}>
+                        {verificationCodeMessage}
+                      </span>
+                    )}
                   </div>
-                )}
+                  <div className="flex">
+                    <Input
+                      id="verificationCode"
+                      type="text"
+                      placeholder="인증코드를 입력하세요"
+                      value={verificationCode}
+                      onChange={(e) => {
+                        const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                        setVerificationCode(value);
+                        setVerificationCodeMessage(null);
+                      }}
+                      maxLength={8}
+                      disabled={emailVerified}
+                      className="flex-1 rounded-r-none border-r-0"
+                      label=""
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleVerifyCode}
+                      disabled={emailVerified || !verificationCode.trim() || isVerifyingCode}
+                      isLoading={isVerifyingCode}
+                      className="h-10 rounded-l-none whitespace-nowrap px-4 min-w-[100px]"
+                    >
+                      {emailVerified ? "인증완료" : "인증확인"}
+                    </Button>
+                  </div>
+                </div>
 
               </div>
 

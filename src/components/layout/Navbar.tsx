@@ -51,7 +51,7 @@ export function Navbar() {
             </Link>
             <Link to="/signup">
               <Button size="sm" className="text-sm font-medium px-3 md:px-4">
-                무료로 시작하기
+                회원가입
               </Button>
             </Link>
           </div>

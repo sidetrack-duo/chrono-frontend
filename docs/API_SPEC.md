@@ -121,12 +121,7 @@ GitHub 관련 에러 코드:
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI...",
-  "user": {
-    "id": 1,
-    "email": "user@example.com",
-    "nickname": "jimin",
-    "githubUsername": "jimin-dev"
-  }
+  "nickname": "jimin"
 }
 ```
 

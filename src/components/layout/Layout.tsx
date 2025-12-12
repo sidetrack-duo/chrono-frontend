@@ -8,14 +8,14 @@ export function Layout() {
   const isLanding = location.pathname === "/";
 
   return (
-    <div className={cn("flex min-h-screen flex-col", isLanding ? "bg-white" : "bg-zinc-100")}>
+    <div className={cn("min-h-screen", isLanding ? "bg-white" : "bg-zinc-100")}>
       <Navbar />
       {isLanding ? (
-        <main className="flex-1">
+        <main>
           <Outlet />
         </main>
       ) : (
-        <main className="mx-auto flex-1 max-w-6xl px-4 py-6 md:px-6 md:py-8">
+        <main className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
           <Outlet />
         </main>
       )}

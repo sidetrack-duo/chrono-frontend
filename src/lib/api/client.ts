@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
 
-const refreshClient = axios.create({
+export const refreshClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
   timeout: 10000,

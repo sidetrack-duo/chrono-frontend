@@ -23,7 +23,7 @@ export function LoginPage() {
 
     try {
       await login({ email, password });
-      const from = (location.state as { from?: Location })?.from?.pathname || "/dashboard";
+      const from = (location.state as { from?: string })?.from || "/dashboard";
       navigate(from, { replace: true });
     } catch (err) {
       if (isApiError(err)) {

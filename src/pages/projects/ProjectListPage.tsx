@@ -37,14 +37,12 @@ export function ProjectListPage() {
   const filteredAndSortedProjects = useMemo(() => {
     let filtered = projects;
 
-    // Filter by status
     if (filterStatus === "in_progress") {
       filtered = projects.filter((p) => p.status === ProjectStatus.IN_PROGRESS);
     } else if (filterStatus === "completed") {
       filtered = projects.filter((p) => p.status === ProjectStatus.COMPLETED);
     }
 
-    // Sort
     const sorted = [...filtered].sort((a, b) => {
       if (sortBy === "created") {
         if (!a.startDate) return 1;
@@ -76,7 +74,6 @@ export function ProjectListPage() {
     const thisMonthProjects: ProjectListItem[] = [];
     const olderProjects: ProjectListItem[] = [];
 
-    // 커밋 많은 순이면 그룹핑 안 함
     if (sortBy === "commits") {
       return {
         todayProjects: filteredAndSortedProjects,
@@ -86,7 +83,6 @@ export function ProjectListPage() {
       };
     }
 
-    // 생성순 vs 최근 활동순에 따라 다른 날짜 기준
     const dateField = sortBy === "created" ? "startDate" : "lastCommitAt";
 
     filteredAndSortedProjects.forEach((project) => {
@@ -110,14 +106,12 @@ export function ProjectListPage() {
     return { todayProjects, thisWeekProjects, thisMonthProjects, olderProjects };
   }, [filteredAndSortedProjects, sortBy]);
 
-  // 정렬/필터 변경 시 첫 번째 프로젝트 자동 선택
   useEffect(() => {
     if (filteredAndSortedProjects.length > 0) {
       setSelectedProjectId(filteredAndSortedProjects[0].id);
     }
   }, [sortBy, filterStatus]);
 
-  // 프로젝트 목록이 처음 로드될 때 첫 번째 프로젝트 자동 선택
   useEffect(() => {
     if (filteredAndSortedProjects.length > 0 && selectedProjectId === null) {
       setSelectedProjectId(filteredAndSortedProjects[0].id);

@@ -52,7 +52,6 @@ export function PasswordSection() {
 
     try {
       // TODO: API 연동 예정
-      console.log("비밀번호 변경 요청 - 추후 API 구현 예정");
       await new Promise((resolve) => setTimeout(resolve, 500));
       showToast("비밀번호가 변경되었습니다.", "success");
       setCurrentPassword("");

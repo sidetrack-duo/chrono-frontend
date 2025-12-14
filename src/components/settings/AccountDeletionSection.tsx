@@ -5,7 +5,6 @@ import { AlertTriangle } from "lucide-react";
 export function AccountDeletionSection() {
   const handleDeleteAccount = () => {
     // TODO: 회원탈퇴 확인 모달 표시
-    console.log("회원탈퇴 버튼 클릭 - 추후 모달 구현 예정");
   };
 
   return (

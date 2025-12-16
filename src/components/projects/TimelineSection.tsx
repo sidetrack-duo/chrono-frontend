@@ -33,7 +33,6 @@ export function TimelineSection({
 
   return (
     <div className="mb-8 last:mb-0">
-      {/* Group Title - 커밋 많은 순일 때는 숨김 */}
       {!showRank && (
         <div className="mb-4 grid grid-cols-[24px_1fr] items-center gap-x-4">
           <div className="flex justify-center">
@@ -45,7 +44,6 @@ export function TimelineSection({
         </div>
       )}
 
-      {/* Project Items - Grid로 타임라인과 카드 정렬 */}
       <div className="grid grid-cols-[24px_1fr] gap-x-4 gap-y-2 items-stretch">
         {projects.map((project, index) => {
           const daysAgo = getDaysSinceLastCommit(project);
@@ -58,16 +56,12 @@ export function TimelineSection({
 
           return (
             <React.Fragment key={project.id}>
-              {/* Timeline Cell */}
               <div className="relative flex justify-center">
-                {/* 세로 선 - 첫/마지막 카드 고려 */}
                 <div 
                   className={`absolute left-1/2 -translate-x-1/2 w-0.5 bg-gray-200 ${
                     isFirst && isLast ? 'top-4 bottom-4' : isFirst ? 'top-1/2 -bottom-1' : isLast ? '-top-1 bottom-1/2' : '-top-1 -bottom-1'
                   }`}
                 ></div>
-                
-                {/* 동그라미 또는 순위 - 카드 중앙에 위치 */}
                 <div className="absolute inset-0 z-10 grid place-items-center">
                   {showRank ? (
                     <div
@@ -94,8 +88,6 @@ export function TimelineSection({
                   )}
                 </div>
               </div>
-
-              {/* Card Cell */}
               <button
                 onClick={() => onSelect(project.id)}
                 className={`min-h-[80px] rounded-lg border p-4 text-left transition-all duration-200 ease-in-out cursor-pointer ${

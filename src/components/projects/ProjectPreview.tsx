@@ -31,12 +31,10 @@ export function ProjectPreview({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900">{project.title}</h2>
       </div>
 
-      {/* Tech Stack */}
       {techStackArray.length > 0 && (
         <div>
           <h3 className="mb-2 text-xs font-medium text-gray-500">기술 스택</h3>
@@ -59,7 +57,7 @@ export function ProjectPreview({
       <div className="space-y-3">
         {project.totalCommits !== undefined && (
           <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-4">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
               <GitCommitVertical className="h-4 w-4 text-primary" />
               <span>총 커밋</span>
             </div>
@@ -69,7 +67,7 @@ export function ProjectPreview({
 
         {daysAgo !== null && (
           <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-4">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
               <Calendar className="h-4 w-4 text-primary" />
               <span>최근 활동</span>
             </div>
@@ -87,7 +85,7 @@ export function ProjectPreview({
                 : "bg-zinc-50"
             }`}
           >
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
               <Target className="h-4 w-4 text-primary" />
               <span>목표</span>
             </div>
@@ -126,7 +124,6 @@ export function ProjectPreview({
         )}
       </div>
 
-      {/* Action Button */}
       <Link
         to={`/projects/${project.id}`}
         className="flex h-10 items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-white transition-colors hover:bg-primary-dark"

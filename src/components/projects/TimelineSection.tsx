@@ -69,12 +69,12 @@ export function TimelineSection({
                         rank === 1
                           ? "bg-amber-400 text-white"
                           : rank === 2
-                          ? "bg-gray-300 text-white"
+                          ? "bg-gray-400 text-white"
                           : rank === 3
                           ? "bg-amber-600 text-white"
                           : isSelected
                           ? "bg-primary text-white"
-                          : "bg-gray-200 text-gray-600"
+                          : "bg-gray-200 text-gray-500"
                       }`}
                     >
                       {rank}

@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { CircleAlert, Flame } from "lucide-react";
+import { CircleAlert, Flame, FolderOpen } from "lucide-react";
 import { ProjectListItem, ProjectStatus } from "@/types/api";
 import { Badge } from "@/components/common/Badge";
+import { EmptyState } from "@/components/common/EmptyState";
 import { getDaysSinceLastCommit } from "@/utils/dashboard";
 
 interface RecentProjectsProps {
@@ -34,15 +35,14 @@ export function RecentProjects({
         </Link>
       </div>
       {projects.length === 0 ? (
-        <div className="py-12 text-center">
-          <p className="text-sm text-gray-500">아직 프로젝트가 없습니다.</p>
-          <Link
-            to="/projects/new"
-            className="mt-4 inline-block text-sm font-medium text-primary hover:text-primary-dark"
-          >
-            첫 프로젝트 만들기
-          </Link>
-        </div>
+        <EmptyState
+          icon={FolderOpen}
+          title="프로젝트가 없습니다"
+          description="첫 프로젝트를 만들어보세요!"
+          actionLabel="+ 새 프로젝트 만들기"
+          actionLink="/projects/new"
+          className="bg-transparent shadow-none py-12"
+        />
       ) : (
         <div className="grid grid-cols-[24px_1fr] gap-x-4 gap-y-2 items-stretch">
           {projects.map((project, index) => {
@@ -54,9 +54,7 @@ export function RecentProjects({
 
             return (
               <React.Fragment key={project.id}>
-                {/* Timeline Cell */}
                 <div className="relative flex justify-center">
-                  {/* 세로 선 - 첫/마지막 카드 고려 */}
                   <div
                     className={`absolute left-1/2 -translate-x-1/2 w-0.5 bg-gray-200 ${
                       isFirst && isLast
@@ -68,14 +66,10 @@ export function RecentProjects({
                         : "-top-1 -bottom-1"
                     }`}
                   ></div>
-
-                  {/* 동그라미 - 카드 중앙에 위치 */}
                   <div className="absolute inset-0 z-10 grid place-items-center">
                     <div className="h-2 w-2 rounded-full bg-gray-300 transition-colors duration-200 ease-in-out"></div>
                   </div>
                 </div>
-
-                {/* Card Cell */}
                 <Link
                   to={`/projects/${project.id}`}
                   className="group block min-h-[80px] rounded-lg border border-gray-200 bg-white p-4 text-left transition-all duration-200 ease-in-out hover:border-primary/50 hover:bg-primary/5"

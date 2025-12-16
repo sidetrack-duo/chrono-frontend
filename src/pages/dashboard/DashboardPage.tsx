@@ -3,6 +3,7 @@ import { useDashboard } from "@/hooks/useDashboard";
 import { ActivityOverview } from "@/components/dashboard/ActivityOverview";
 import { ActivityRecord } from "@/components/dashboard/ActivityRecord";
 import { RecentProjects } from "@/components/dashboard/RecentProjects";
+import { SkeletonCard, SkeletonCardContent, Skeleton } from "@/components/common/Skeleton";
 
 export function DashboardPage() {
   const { data, isLoading, error } = useDashboard();
@@ -49,36 +50,30 @@ export function DashboardPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* ActivityOverview 스켈레톤 */}
           <div className="lg:col-span-2">
-            <div className="h-96 animate-pulse rounded-xl bg-white p-6 shadow-sm">
-              <div className="space-y-4">
-                <div className="h-6 w-48 rounded bg-gray-200"></div>
-                <div className="h-64 rounded-lg bg-gray-100"></div>
-              </div>
-            </div>
+            <SkeletonCard>
+              <SkeletonCardContent titleWidth="w-48" />
+            </SkeletonCard>
           </div>
 
           {/* ActivityRecord 스켈레톤 */}
           <div>
-            <div className="h-96 animate-pulse rounded-xl bg-white p-6 shadow-sm">
-              <div className="space-y-4">
-                <div className="h-6 w-20 rounded bg-gray-200"></div>
-                <div className="h-64 rounded-lg bg-gray-100"></div>
-              </div>
-            </div>
+            <SkeletonCard>
+              <SkeletonCardContent titleWidth="w-20" />
+            </SkeletonCard>
           </div>
         </div>
 
         {/* RecentProjects 스켈레톤 */}
-        <div className="h-64 animate-pulse rounded-xl bg-white p-6 shadow-sm">
+        <SkeletonCard height="h-64">
           <div className="space-y-3">
-            <div className="h-6 w-24 rounded bg-gray-200"></div>
+            <Skeleton width="w-24" height="h-6" />
             <div className="space-y-2">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-20 rounded-lg bg-gray-100"></div>
+                <Skeleton key={i} width="w-full" height="h-20" rounded="lg" />
               ))}
             </div>
           </div>
-        </div>
+        </SkeletonCard>
       </div>
     );
   }

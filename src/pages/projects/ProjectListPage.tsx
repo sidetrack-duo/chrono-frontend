@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { GitCommit, Loader2, ChevronDown } from "lucide-react";
+import { GitCommit, ChevronDown } from "lucide-react";
 import { getProjects } from "@/lib/api/project";
 import { ProjectListItem, ProjectStatus } from "@/types/api";
 import { TimelineSection } from "@/components/projects/TimelineSection";
 import { ProjectPreview } from "@/components/projects/ProjectPreview";
+import { SkeletonCard, SkeletonCardContent } from "@/components/common/Skeleton";
 
 type FilterStatus = "all" | "in_progress" | "completed";
 type SortOption = "recent" | "commits" | "created";
@@ -174,22 +175,16 @@ export function ProjectListPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Timeline List 스켈레톤 */}
           <div className="lg:col-span-2">
-            <div className="h-96 animate-pulse rounded-xl bg-white p-6 shadow-sm">
-              <div className="space-y-4">
-                <div className="h-6 w-48 rounded bg-gray-200"></div>
-                <div className="h-64 rounded-lg bg-gray-100"></div>
-              </div>
-            </div>
+            <SkeletonCard>
+              <SkeletonCardContent titleWidth="w-48" />
+            </SkeletonCard>
           </div>
 
           {/* Preview Panel 스켈레톤 */}
           <div>
-            <div className="h-96 animate-pulse rounded-xl bg-white p-6 shadow-sm">
-              <div className="space-y-4">
-                <div className="h-6 w-20 rounded bg-gray-200"></div>
-                <div className="h-64 rounded-lg bg-gray-100"></div>
-              </div>
-            </div>
+            <SkeletonCard>
+              <SkeletonCardContent titleWidth="w-20" />
+            </SkeletonCard>
           </div>
         </div>
       </div>

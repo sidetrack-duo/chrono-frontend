@@ -4,6 +4,7 @@ import { ActivityOverview } from "@/components/dashboard/ActivityOverview";
 import { ActivityRecord } from "@/components/dashboard/ActivityRecord";
 import { RecentProjects } from "@/components/dashboard/RecentProjects";
 import { SkeletonCard, SkeletonCardContent, Skeleton } from "@/components/common/Skeleton";
+import { ProjectStatus } from "@/types/api";
 
 export function DashboardPage() {
   const { data, isLoading, error } = useDashboard();
@@ -38,6 +39,39 @@ export function DashboardPage() {
       streakDays: streak,
     };
   }, [weeklyCommits]);
+
+  const getStatusLabel = (status: ProjectStatus) => {
+    return status === ProjectStatus.IN_PROGRESS ? "진행 중" : "완료";
+  };
+
+  const getStatusVariant = (status: ProjectStatus): "primary" | "accent" => {
+    return status === ProjectStatus.IN_PROGRESS ? "primary" : "accent";
+  };
+
+  const getTimeLabel = (daysAgo: number | null) => {
+    if (daysAgo === null) return "";
+    if (daysAgo === 0) return "오늘";
+    if (daysAgo === 1) return "어제";
+    return `${daysAgo}일 전`;
+  };
+
+  const getDday = (targetDate?: string) => {
+    if (!targetDate) return null;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const target = new Date(targetDate);
+    const diffTime = target.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const getDdayLabel = (dday: number | null) => {
+    if (dday === null) return null;
+    if (dday < 0) return { label: `D+${Math.abs(dday)}`, isOverdue: true };
+    if (dday === 0) return { label: "D-Day", isUrgent: true };
+    if (dday <= 7) return { label: `D-${dday}`, isUrgent: true };
+    return { label: `D-${dday}`, isUrgent: false };
+  };
 
   if (isLoading) {
     return (
@@ -121,7 +155,14 @@ export function DashboardPage() {
         />
       </div>
 
-      <RecentProjects projects={data.recentProjects} />
+      <RecentProjects
+        projects={data.recentProjects}
+        getTimeLabel={getTimeLabel}
+        getDday={getDday}
+        getDdayLabel={getDdayLabel}
+        getStatusLabel={getStatusLabel}
+        getStatusVariant={getStatusVariant}
+      />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { ProjectListItem, ProjectStatus } from "@/types/api";
 import { TimelineSection } from "@/components/projects/TimelineSection";
 import { ProjectPreview } from "@/components/projects/ProjectPreview";
 import { SkeletonCard, SkeletonCardContent } from "@/components/common/Skeleton";
+import { EmptyState } from "@/components/common/EmptyState";
 
 type FilterStatus = "all" | "in_progress" | "completed";
 type SortOption = "recent" | "commits" | "created";
@@ -210,19 +211,13 @@ export function ProjectListPage() {
           <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">프로젝트</h1>
           <p className="mt-1 text-sm text-gray-500">관리 중인 사이드 프로젝트 목록입니다.</p>
         </div>
-        <div className="flex flex-col items-center justify-center rounded-xl bg-white py-20 shadow-sm">
-          <div className="rounded-full bg-gray-100 p-4">
-            <GitCommit className="h-8 w-8 text-gray-400" />
-          </div>
-          <h3 className="mt-4 text-lg font-semibold text-gray-900">프로젝트가 없습니다</h3>
-          <p className="mt-2 text-sm text-gray-500">첫 프로젝트를 만들어보세요!</p>
-          <Link
-            to="/projects/new"
-            className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-primary px-6 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
-          >
-            + 새 프로젝트 만들기
-          </Link>
-        </div>
+        <EmptyState
+          icon={GitCommit}
+          title="프로젝트가 없습니다"
+          description="첫 프로젝트를 만들어보세요!"
+          actionLabel="+ 새 프로젝트 만들기"
+          actionLink="/projects/new"
+        />
       </div>
     );
   }

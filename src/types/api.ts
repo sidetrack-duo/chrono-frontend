@@ -181,3 +181,29 @@ export interface DashboardResponse {
   recentProjects: ProjectListItem[];
 }
 
+export interface CommitSummary {
+  projectId: number;
+  totalCommits: number;
+  latestCommitDate: string;
+  commitsThisWeek: number;
+  mostActiveDay: string;
+}
+
+export interface WeeklyCommitCount {
+  dayOfWeek: number;
+  count: number;
+}
+
+export interface CommitHistoryCount {
+  date: string;
+  count: number;
+}
+
+export interface Commit {
+  sha: string;
+  message: string;
+  authorName: string;
+  authorEmail: string;
+  commitDate: string;
+}
+

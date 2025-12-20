@@ -5,8 +5,9 @@ export async function sendEmailVerification(data: EmailVerificationSendRequest):
   await apiClient.post("/auth/email/send", data);
 }
 
-export async function verifyEmailCode(data: EmailVerificationVerifyRequest): Promise<void> {
-  await apiClient.post("/auth/email/verify", data);
+export async function verifyEmailCode(data: EmailVerificationVerifyRequest): Promise<boolean> {
+  const response = await apiClient.post<boolean>("/auth/email/verify", data);
+  return response.data;
 }
 
 export async function signup(data: SignupRequest): Promise<void> {
@@ -14,7 +15,7 @@ export async function signup(data: SignupRequest): Promise<void> {
 }
 
 export async function login(data: LoginRequest): Promise<LoginResponse> {
-  const response = await apiClient.post<{ accessToken: string; nickname: string }>("/auth/login", data);
+  const response = await apiClient.post<{ accessToken: string; refreshTokenCookie: string; nickname: string }>("/auth/login", data);
   
   return {
     accessToken: response.data.accessToken,
@@ -28,8 +29,8 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
 }
 
 export async function refreshToken(): Promise<string> {
-  const response = await refreshClient.post<string>("/auth/refresh");
-  return response.data;
+  const response = await refreshClient.post<{ success: boolean; message: string; data: string }>("/auth/refresh");
+  return response.data.data || response.data;
 }
 
 export async function logout(): Promise<void> {

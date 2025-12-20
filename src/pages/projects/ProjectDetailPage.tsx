@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit, Trash2, ExternalLink, GitCommitVertical, Calendar, Target, CircleAlert, Flame, Github } from "lucide-react";
-import { getProject } from "@/lib/api/project";
+import { getProject, deleteProject } from "@/lib/api/project";
+import { isApiError } from "@/lib/api/client";
 import { Project, ProjectStatus } from "@/types/api";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
@@ -42,12 +43,21 @@ export function ProjectDetailPage() {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!project) return;
     
     if (window.confirm(`"${project.title}" 프로젝트를 삭제하시겠습니까?`)) {
-      // TODO: 삭제 API 연동
-      showToast("삭제 기능은 곧 구현될 예정입니다.", "info");
+      try {
+        await deleteProject(project.id);
+        showToast("프로젝트가 삭제되었습니다.", "success");
+        navigate("/projects");
+      } catch (err) {
+        if (isApiError(err)) {
+          showToast(err.message || "프로젝트 삭제에 실패했습니다.", "error");
+        } else {
+          showToast("프로젝트 삭제 중 오류가 발생했습니다.", "error");
+        }
+      }
     }
   };
 

@@ -92,6 +92,23 @@ export interface GitHubConnectBasicResponse {
   message: string;
 }
 
+export interface GitHubConnectPatRequest {
+  username: string;
+  pat: string;
+}
+
+export interface GitHubConnectPatResponse {
+  connected: boolean;
+  type: "FULL";
+  message: string;
+}
+
+export interface GitHubDisconnectPatResponse {
+  connected: boolean;
+  type: "BASIC";
+  message: string;
+}
+
 export interface GitHubRepo {
   repoId: number;
   repoName: string;

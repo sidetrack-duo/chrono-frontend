@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import { GitHubRepo, GitHubUsernameValidation, GitHubConnectBasicRequest, GitHubConnectBasicResponse } from "@/types/api";
+import { GitHubRepo, GitHubUsernameValidation, GitHubConnectBasicRequest, GitHubConnectBasicResponse, GitHubConnectPatRequest, GitHubConnectPatResponse, GitHubDisconnectPatResponse } from "@/types/api";
 import { mockApi } from "@/lib/mock/api";
 
 export async function validateGitHubUsername(username: string): Promise<GitHubUsernameValidation> {
@@ -11,6 +11,16 @@ export async function validateGitHubUsername(username: string): Promise<GitHubUs
 
 export async function connectGitHubBasic(data: GitHubConnectBasicRequest): Promise<GitHubConnectBasicResponse> {
   const response = await apiClient.post<GitHubConnectBasicResponse>("/github/connect-basic", data);
+  return response.data;
+}
+
+export async function connectGitHubPat(data: GitHubConnectPatRequest): Promise<GitHubConnectPatResponse> {
+  const response = await apiClient.post<GitHubConnectPatResponse>("/github/connect-pat", data);
+  return response.data;
+}
+
+export async function disconnectGitHubPat(): Promise<GitHubDisconnectPatResponse> {
+  const response = await apiClient.delete<GitHubDisconnectPatResponse>("/github/pat");
   return response.data;
 }
 

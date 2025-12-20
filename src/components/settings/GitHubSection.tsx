@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { Card } from "@/components/common/Card";
+import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { updateGithubUsername } from "@/lib/api/user";
 import { connectGitHubPat, disconnectGitHubPat } from "@/lib/api/github";
 import { isApiError } from "@/lib/api/client";
@@ -26,6 +27,7 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
   const [patUsername, setPatUsername] = useState(initialUsername);
   const [patToken, setPatToken] = useState("");
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [isDisconnectModalOpen, setIsDisconnectModalOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,11 +98,11 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
     }
   };
 
-  const handleDisconnectPat = async () => {
-    if (!window.confirm("PAT 연동을 해제하시겠습니까?\n\n해제 후 Private repository 접근이 불가능합니다.")) {
-      return;
-    }
+  const handleDisconnectPatClick = () => {
+    setIsDisconnectModalOpen(true);
+  };
 
+  const handleDisconnectPatConfirm = async () => {
     setIsDisconnecting(true);
     setPatError(null);
     setPatSuccess(null);
@@ -117,6 +119,7 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
       }
     } finally {
       setIsDisconnecting(false);
+      setIsDisconnectModalOpen(false);
     }
   };
 
@@ -224,7 +227,7 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
             <Button
               type="button"
               variant="outline"
-              onClick={handleDisconnectPat}
+              onClick={handleDisconnectPatClick}
               disabled={isDisconnecting || isPatLoading}
               isLoading={isDisconnecting}
               className="w-full md:w-auto"
@@ -255,6 +258,18 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
           </div>
         </form>
       </div>
+
+      <ConfirmModal
+        isOpen={isDisconnectModalOpen}
+        onClose={() => setIsDisconnectModalOpen(false)}
+        onConfirm={handleDisconnectPatConfirm}
+        title="PAT 연동 해제"
+        description="PAT 연동을 해제하시겠습니까?\n해제 후엔 private repository 접근이 불가합니다."
+        confirmText="해제"
+        cancelText="취소"
+        confirmVariant="accent"
+        isLoading={isDisconnecting}
+      />
     </Card>
   );
 }

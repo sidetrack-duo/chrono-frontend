@@ -7,6 +7,7 @@ import { isApiError } from "@/lib/api/client";
 import { Project, ProjectStatus, CommitSummary, CommitHistoryCount, Commit } from "@/types/api";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
+import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { useToastStore } from "@/stores/toastStore";
 import { SkeletonCard, SkeletonCardContent, SkeletonText, Skeleton } from "@/components/common/Skeleton";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -83,6 +84,7 @@ export function ProjectDetailPage() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isLoadingCommits, setIsLoadingCommits] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const loadProject = async () => {
     if (!id) return;
@@ -196,21 +198,25 @@ export function ProjectDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
     if (!project) return;
     
-    if (window.confirm(`"${project.title}" 프로젝트를 삭제하시겠습니까?`)) {
-      try {
-        await deleteProject(project.id);
-        showToast("프로젝트가 삭제되었습니다.", "success");
-        navigate("/projects");
-      } catch (err) {
-        if (isApiError(err)) {
-          showToast(err.message || "프로젝트 삭제에 실패했습니다.", "error");
-        } else {
-          showToast("프로젝트 삭제 중 오류가 발생했습니다.", "error");
-        }
+    try {
+      await deleteProject(project.id);
+      showToast("프로젝트가 삭제되었습니다.", "success");
+      navigate("/projects");
+    } catch (err) {
+      if (isApiError(err)) {
+        showToast(err.message || "프로젝트 삭제에 실패했습니다.", "error");
+      } else {
+        showToast("프로젝트 삭제 중 오류가 발생했습니다.", "error");
       }
+    } finally {
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -340,7 +346,7 @@ export function ProjectDetailPage() {
           <Button
             variant="danger"
             size="sm"
-            onClick={handleDelete}
+            onClick={handleDeleteClick}
           >
             <Trash2 className="h-4 w-4 mr-2" />
             삭제
@@ -648,6 +654,17 @@ export function ProjectDetailPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="프로젝트 삭제"
+        description={`"${project.title}" 프로젝트를 삭제하시겠습니까?\n삭제된 프로젝트는 복구할 수 없습니다.`}
+        confirmText="삭제"
+        cancelText="취소"
+        confirmVariant="accent"
+      />
     </div>
   );
 }

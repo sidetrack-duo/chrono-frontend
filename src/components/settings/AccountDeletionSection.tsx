@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
+import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { AlertTriangle } from "lucide-react";
 import { deleteAccount } from "@/lib/api/auth";
 import { isApiError } from "@/lib/api/client";
@@ -13,12 +14,13 @@ export function AccountDeletionSection() {
   const logout = useAuthStore((state) => state.logout);
   const showToast = useToastStore((state) => state.showToast);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const handleDeleteAccount = async () => {
-    if (!window.confirm("정말로 회원 탈퇴를 하시겠습니까?\n\n탈퇴 후에는 프로젝트 기록 및 데이터를 복구할 수 없습니다.")) {
-      return;
-    }
+  const handleDeleteAccountClick = () => {
+    setIsDeleteModalOpen(true);
+  };
 
+  const handleDeleteAccountConfirm = async () => {
     try {
       setIsDeleting(true);
       await deleteAccount();
@@ -33,6 +35,7 @@ export function AccountDeletionSection() {
       }
     } finally {
       setIsDeleting(false);
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -48,16 +51,28 @@ export function AccountDeletionSection() {
           </span>
         </p>
         <Button
-          variant="outline"
+          variant="accent"
           size="sm"
-          onClick={handleDeleteAccount}
+          onClick={handleDeleteAccountClick}
           disabled={isDeleting}
           isLoading={isDeleting}
-          className="shrink-0 border-accent-dark text-accent-dark"
+          className="shrink-0"
         >
           탈퇴하기
         </Button>
       </div>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteAccountConfirm}
+        title="회원 탈퇴"
+        description="탈퇴 시 회원님의 기록 및 데이터를 복구할 수 없습니다.\n정말로 탈퇴하시겠습니까?"
+        confirmText="탈퇴"
+        cancelText="취소"
+        confirmVariant="accent"
+        isLoading={isDeleting}
+      />
     </Card>
   );
 }

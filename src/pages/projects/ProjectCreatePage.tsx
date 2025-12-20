@@ -107,7 +107,7 @@ export function ProjectCreatePage() {
   };
 
   const repoOptions = repos.map((repo) => ({
-    value: repo.fullName, // 백엔드 응답에 맞춰 fullName 사용
+    value: repo.fullName,
     label: repo.fullName,
   }));
 

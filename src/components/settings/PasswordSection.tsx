@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { useToastStore } from "@/stores/toastStore";
+import { updatePassword } from "@/lib/api/user";
+import { isApiError } from "@/lib/api/client";
 
 export function PasswordSection() {
   const showToast = useToastStore((state) => state.showToast);
@@ -51,14 +53,21 @@ export function PasswordSection() {
     setIsLoading(true);
 
     try {
-      // TODO: API 연동 예정
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await updatePassword({
+        currentPassword,
+        newPassword,
+        newPasswordConfirm: confirmPassword,
+      });
       showToast("비밀번호가 변경되었습니다.", "success");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      showToast("비밀번호 변경에 실패했습니다.", "error");
+      if (isApiError(err)) {
+        showToast(err.message || "비밀번호 변경에 실패했습니다.", "error");
+      } else {
+        showToast("비밀번호 변경에 실패했습니다.", "error");
+      }
     } finally {
       setIsLoading(false);
     }

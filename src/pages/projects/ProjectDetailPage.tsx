@@ -344,7 +344,7 @@ export function ProjectDetailPage() {
             수정
           </Button>
           <Button
-            variant="danger"
+            variant="accent"
             size="sm"
             onClick={handleDeleteClick}
           >

@@ -34,7 +34,7 @@ export interface ConfirmModalProps {
   /**
    * 확인 버튼 variant (기본: "accent")
    */
-  confirmVariant?: "primary" | "danger" | "accent";
+  confirmVariant?: "primary" | "accent";
   /**
    * 확인 버튼 로딩 상태
    */
@@ -136,7 +136,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               {cancelText}
             </Button>
             <Button
-              variant={confirmVariant === "accent" ? "accent" : confirmVariant === "danger" ? "danger" : "primary"}
+              variant={confirmVariant === "accent" ? "accent" : "primary"}
               onClick={onConfirm}
               isLoading={isLoading}
             >

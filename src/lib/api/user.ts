@@ -4,6 +4,7 @@ import {
   UpdateGithubUsernameRequest,
   UpdateGithubUsernameResponse,
   UpdateProfileRequest,
+  UpdatePasswordRequest,
 } from "@/types/api";
 import { mockApi } from "@/lib/mock/api";
 
@@ -30,12 +31,6 @@ export async function updateProfile(
     return mockApi.user.updateProfile(data);
   }
   throw new Error("백엔드에 프로필 수정 API가 없습니다.");
-}
-
-export interface UpdatePasswordRequest {
-  currentPassword: string;
-  newPassword: string;
-  newPasswordConfirm: string;
 }
 
 export async function updatePassword(data: UpdatePasswordRequest): Promise<void> {

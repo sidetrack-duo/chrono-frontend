@@ -67,6 +67,12 @@ export interface UpdateProfileRequest {
   bio?: string;
 }
 
+export interface UpdatePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  newPasswordConfirm: string;
+}
+
 export interface GitHubUsernameValidation {
   valid: boolean;
   username: string;

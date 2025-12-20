@@ -30,7 +30,10 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
 
 export async function refreshToken(): Promise<string> {
   const response = await refreshClient.post<{ success: boolean; message: string; data: string }>("/auth/refresh");
-  return response.data.data || response.data;
+  if (response.data && typeof response.data === "object" && "success" in response.data && "data" in response.data) {
+    return response.data.data;
+  }
+  return typeof response.data === "string" ? response.data : "";
 }
 
 export async function logout(): Promise<void> {

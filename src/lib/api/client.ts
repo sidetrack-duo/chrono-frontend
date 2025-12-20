@@ -74,8 +74,13 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshResponse = await refreshClient.post<{ success: boolean; message: string; data: string }>("/auth/refresh");
-        const newAccessToken = refreshResponse.data?.data || refreshResponse.data;
+        const refreshResponse = await refreshClient.post<{ success: boolean; message: string; data: string } | string>("/auth/refresh");
+        const responseData = refreshResponse.data;
+        const newAccessToken = typeof responseData === "object" && responseData && "data" in responseData
+          ? responseData.data
+          : typeof responseData === "string"
+          ? responseData
+          : "";
         useAuthStore.getState().setToken(newAccessToken);
 
         refreshSubscribers.forEach((callback) => callback(newAccessToken));

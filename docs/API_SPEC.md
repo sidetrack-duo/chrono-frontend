@@ -279,7 +279,6 @@ Access Token 문자열 반환
     "id": 1,
     "email": "user@example.com",
     "nickname": "jimin",
-    "bio": "hi!",
     "githubUsername": "jimin-dev"
   }
 }
@@ -334,8 +333,7 @@ Access Token 문자열 반환
 
 ```json
 {
-  "nickname": "새 닉네임",
-  "bio": "한줄 소개"
+  "nickname": "새 닉네임"
 }
 ```
 
@@ -349,7 +347,6 @@ Access Token 문자열 반환
     "id": 1,
     "email": "user@example.com",
     "nickname": "새 닉네임",
-    "bio": "한줄 소개",
     "githubUsername": "jimin-dev"
   }
 }

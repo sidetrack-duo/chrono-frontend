@@ -11,7 +11,6 @@ export const mockUser: User = {
   id: 1,
   email: "developer@example.com",
   nickname: "개발자",
-  bio: "사이드 프로젝트를 관리하는 개발자입니다.",
   githubUsername: "testuser",
 };
 

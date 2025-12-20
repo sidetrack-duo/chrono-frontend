@@ -50,7 +50,6 @@ export interface User {
   id: number;
   email: string;
   nickname: string;
-  bio?: string;
   githubUsername?: string;
 }
 
@@ -64,7 +63,6 @@ export interface UpdateGithubUsernameResponse {
 
 export interface UpdateProfileRequest {
   nickname?: string;
-  bio?: string;
 }
 
 export interface UpdatePasswordRequest {

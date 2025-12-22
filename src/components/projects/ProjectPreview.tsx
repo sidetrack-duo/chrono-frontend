@@ -53,7 +53,6 @@ export function ProjectPreview({
         </div>
       )}
 
-      {/* Stats */}
       <div className="space-y-3">
         {project.totalCommits !== undefined && (
           <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-4">
@@ -125,7 +124,7 @@ export function ProjectPreview({
       </div>
 
       <Link
-        to={`/projects/${project.id}`}
+        to={`/projects/${project.projectId}`}
         className="flex h-10 items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-white transition-colors hover:bg-primary-dark"
       >
         상세보기

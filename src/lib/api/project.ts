@@ -77,7 +77,7 @@ export async function getProjects(): Promise<ProjectListItem[]> {
     const response = await apiClient.get<BackendProjectResponse[]>("/projects");
     
     return response.data.map((p) => ({
-      id: p.projectId,
+      projectId: p.projectId,
       title: p.title || p.repoName,
       status: p.status,
       techStack: p.techStack.length > 0 ? p.techStack.join(", ") : undefined,

@@ -55,7 +55,7 @@ export const mockRepos: GitHubRepo[] = [
 
 export const mockProjects: ProjectListItem[] = [
   {
-    id: 1,
+    projectId: 1,
     title: "Chrono - 프로젝트 관리 서비스",
     status: ProjectStatus.IN_PROGRESS,
     techStack: "React, TypeScript, Tailwind",
@@ -65,7 +65,7 @@ export const mockProjects: ProjectListItem[] = [
     startDate: "2025-11-01",
   },
   {
-    id: 2,
+    projectId: 2,
     title: "포트폴리오 웹사이트",
     status: ProjectStatus.COMPLETED,
     techStack: "Next.js, Vercel",
@@ -75,7 +75,7 @@ export const mockProjects: ProjectListItem[] = [
     startDate: "2025-11-15",
   },
   {
-    id: 3,
+    projectId: 3,
     title: "기술 블로그",
     status: ProjectStatus.IN_PROGRESS,
     techStack: "Gatsby, MDX",
@@ -85,7 +85,7 @@ export const mockProjects: ProjectListItem[] = [
     startDate: "2025-12-01",
   },
   {
-    id: 4,
+    projectId: 4,
     title: "AI 챗봇 프로젝트",
     status: ProjectStatus.IN_PROGRESS,
     techStack: "Python, FastAPI, OpenAI",
@@ -95,7 +95,7 @@ export const mockProjects: ProjectListItem[] = [
     startDate: "2025-10-20",
   },
   {
-    id: 5,
+    projectId: 5,
     title: "모바일 앱",
     status: ProjectStatus.IN_PROGRESS,
     techStack: "React Native, Expo",
@@ -105,7 +105,7 @@ export const mockProjects: ProjectListItem[] = [
     startDate: "2025-11-10",
   },
   {
-    id: 6,
+    projectId: 6,
     title: "E-commerce 플랫폼",
     status: ProjectStatus.COMPLETED,
     techStack: "Vue, Node.js, PostgreSQL",
@@ -115,7 +115,7 @@ export const mockProjects: ProjectListItem[] = [
     startDate: "2025-09-01",
   },
   {
-    id: 7,
+    projectId: 7,
     title: "데이터 대시보드",
     status: ProjectStatus.IN_PROGRESS,
     techStack: "D3.js, React, GraphQL",
@@ -125,7 +125,7 @@ export const mockProjects: ProjectListItem[] = [
     startDate: "2025-12-05",
   },
   {
-    id: 8,
+    projectId: 8,
     title: "API 게이트웨이",
     status: ProjectStatus.COMPLETED,
     techStack: "Go, Docker, Kubernetes",
@@ -135,7 +135,7 @@ export const mockProjects: ProjectListItem[] = [
     startDate: "2025-10-01",
   },
   {
-    id: 9,
+    projectId: 9,
     title: "웹 게임 프로젝트",
     status: ProjectStatus.IN_PROGRESS,
     techStack: "Phaser, TypeScript, WebSocket",
@@ -145,7 +145,7 @@ export const mockProjects: ProjectListItem[] = [
     startDate: "2025-11-15",
   },
   {
-    id: 10,
+    projectId: 10,
     title: "데이터 분석 도구",
     status: ProjectStatus.IN_PROGRESS,
     techStack: "Python, Pandas, Jupyter",

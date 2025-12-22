@@ -47,7 +47,7 @@ export function TimelineSection({
       <div className="grid grid-cols-[24px_1fr] gap-x-4 gap-y-2 items-stretch">
         {projects.map((project, index) => {
           const daysAgo = getDaysSinceLastCommit(project);
-          const isSelected = project.id === selectedId;
+          const isSelected = project.projectId === selectedId;
           const dday = project.status !== ProjectStatus.COMPLETED ? getDday(project.targetDate) : null;
           const ddayInfo = dday !== null ? getDdayLabel(dday) : null;
           const rank = index + 1;
@@ -55,7 +55,7 @@ export function TimelineSection({
           const isLast = index === projects.length - 1;
 
           return (
-            <React.Fragment key={project.id}>
+            <React.Fragment key={project.projectId}>
               <div className="relative flex justify-center">
                 <div 
                   className={`absolute left-1/2 -translate-x-1/2 w-0.5 bg-gray-200 ${
@@ -89,7 +89,7 @@ export function TimelineSection({
                 </div>
               </div>
               <button
-                onClick={() => onSelect(project.id)}
+                onClick={() => onSelect(project.projectId)}
                 className={`min-h-[80px] rounded-lg border p-4 text-left transition-all duration-200 ease-in-out cursor-pointer ${
                   isSelected
                     ? "border-primary shadow-sm shadow-primary/20 hover:bg-primary/5"

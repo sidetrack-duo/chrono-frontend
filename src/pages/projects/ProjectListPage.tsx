@@ -111,18 +111,18 @@ export function ProjectListPage() {
 
   useEffect(() => {
     if (filteredAndSortedProjects.length > 0) {
-      setSelectedProjectId(filteredAndSortedProjects[0].id);
+      setSelectedProjectId(filteredAndSortedProjects[0].projectId);
     }
-  }, [sortBy, filterStatus]);
+  }, [filteredAndSortedProjects]);
 
   useEffect(() => {
     if (filteredAndSortedProjects.length > 0 && selectedProjectId === null) {
-      setSelectedProjectId(filteredAndSortedProjects[0].id);
+      setSelectedProjectId(filteredAndSortedProjects[0].projectId);
     }
   }, [filteredAndSortedProjects, selectedProjectId]);
 
   const selectedProject = useMemo(() => {
-    return projects.find((p) => p.id === selectedProjectId);
+    return projects.find((p) => p.projectId === selectedProjectId);
   }, [projects, selectedProjectId]);
 
   const projectCounts = useMemo(() => {
@@ -228,7 +228,6 @@ export function ProjectListPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">프로젝트</h1>
@@ -242,14 +241,10 @@ export function ProjectListPage() {
         </Link>
       </div>
 
-      {/* Timeline + Preview Layout */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Timeline List */}
         <div className="lg:col-span-2">
           <div className="rounded-xl bg-white p-6 shadow-sm">
-            {/* Filters & Sort */}
             <div className="mb-6 flex items-center gap-2 sm:justify-between">
-              {/* Status Filter */}
               <div className="mr-3 flex flex-shrink items-center gap-1.5 sm:mr-0 sm:gap-2">
                 <button
                   onClick={() => setFilterStatus("all")}
@@ -283,7 +278,6 @@ export function ProjectListPage() {
                 </button>
               </div>
 
-              {/* Sort */}
               <div className="relative flex-shrink-0">
                 <select
                   value={sortBy}
@@ -298,9 +292,7 @@ export function ProjectListPage() {
               </div>
             </div>
 
-            {/* Timeline Content */}
             <div className="relative">
-              {/* Timeline Groups */}
               {sortBy === "commits" ? (
                 <TimelineSection
                   title="전체"
@@ -366,7 +358,6 @@ export function ProjectListPage() {
           </div>
         </div>
 
-        {/* Preview Panel */}
         <div className="lg:col-span-1">
           <div className="rounded-xl bg-white p-6 shadow-sm lg:sticky lg:top-6">
             {selectedProject ? (

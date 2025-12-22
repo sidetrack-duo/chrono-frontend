@@ -163,7 +163,7 @@ export interface UpdateProjectRequest {
 }
 
 export interface ProjectListItem {
-  id: number;
+  projectId: number;
   title: string;
   status: ProjectStatus;
   techStack?: string;

@@ -53,7 +53,7 @@ export function RecentProjects({
             const isLast = index === projects.length - 1;
 
             return (
-              <React.Fragment key={project.id}>
+              <React.Fragment key={project.projectId}>
                 <div className="relative flex justify-center">
                   <div
                     className={`absolute left-1/2 -translate-x-1/2 w-0.5 bg-gray-200 ${
@@ -71,7 +71,7 @@ export function RecentProjects({
                   </div>
                 </div>
                 <Link
-                  to={`/projects/${project.id}`}
+                  to={`/projects/${project.projectId}`}
                   className="group block min-h-[80px] rounded-lg border border-gray-200 bg-white p-4 text-left transition-all duration-200 ease-in-out hover:border-primary/50 hover:bg-primary/5"
                 >
                   <div className="flex items-center justify-between gap-3">

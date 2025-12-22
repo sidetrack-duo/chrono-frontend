@@ -5,7 +5,7 @@
 버전: v1.2
 
 작성일: 2025-12-02  
-수정일: 2025-12-20
+수정일: 2025-12-23
 
 기반 문서: PRD.md, FRS.md
 
@@ -148,7 +148,7 @@ GitHub 관련 에러 코드:
 }
 ```
 
-**비고**: Refresh Token은 HttpOnly Cookie로 전송됨
+**비고:** Refresh Token은 HttpOnly Cookie로 전송됨
 
 ---
 
@@ -202,7 +202,7 @@ Access Token 문자열 반환
 }
 ```
 
-**비고**: 서버 측 Refresh Token 삭제 및 쿠키 제거
+**비고:** 서버 측 Refresh Token 삭제 및 쿠키 제거
 
 ---
 

@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit, Trash2, ExternalLink, GitCommitVertical, Calendar, Target, CircleAlert, Flame, Github, RefreshCw, ChevronDown } from "lucide-react";
-import { getProject, deleteProject, updateProjectStatus } from "@/lib/api/project";
+import { getProject, deleteProject, updateProjectStatus, updateProject } from "@/lib/api/project";
 import { syncCommits, getCommitSummary, getCommitHistory, getAllCommits } from "@/lib/api/commit";
 import { isApiError } from "@/lib/api/client";
 import { Project, ProjectStatus, CommitSummary, CommitHistoryCount, Commit } from "@/types/api";
 import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
+import { ProjectEditModal } from "@/components/projects/ProjectEditModal";
 import { useToastStore } from "@/stores/toastStore";
 import { SkeletonCard, SkeletonCardContent, SkeletonText, Skeleton } from "@/components/common/Skeleton";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -85,6 +86,7 @@ export function ProjectDetailPage() {
   const [isLoadingCommits, setIsLoadingCommits] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const loadProject = async () => {
     if (!id) return;
@@ -195,6 +197,31 @@ export function ProjectDetailPage() {
       }
     } finally {
       setIsUpdatingStatus(false);
+    }
+  };
+
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (data: {
+    title: string;
+    description?: string;
+    techStack?: string;
+    targetDate?: string;
+  }) => {
+    if (!project) return;
+    
+    try {
+      await updateProject(project.id, data);
+      await loadProject();
+      showToast("프로젝트가 수정되었습니다.", "success");
+    } catch (err) {
+      if (isApiError(err)) {
+        throw new Error(err.message || "프로젝트 수정에 실패했습니다.");
+      } else {
+        throw new Error("프로젝트 수정 중 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -338,7 +365,7 @@ export function ProjectDetailPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => showToast("수정 기능은 곧 구현될 예정입니다.", "info")}
+            onClick={handleEditClick}
           >
             <Edit className="h-4 w-4 mr-2" />
             수정
@@ -664,6 +691,13 @@ export function ProjectDetailPage() {
         confirmText="삭제"
         cancelText="취소"
         confirmVariant="accent"
+      />
+
+      <ProjectEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        project={project}
+        onSubmit={handleEditSubmit}
       />
     </div>
   );

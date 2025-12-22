@@ -162,7 +162,7 @@ export const mockProject: Project = {
   description: "GitHub 커밋을 기반으로 사이드 프로젝트를 관리하는 서비스입니다.",
   startDate: "2025-11-01",
   targetDate: "2025-12-31",
-  techStack: "React, TypeScript, Tailwind CSS, Zustand",
+  techStack: "React, TypeScript, Tailwind CSS, Zustand, React Router, Axios, Vite, ESLint, Prettier, Vitest",
   status: ProjectStatus.IN_PROGRESS,
   repoName: "chrono",
   repoOwner: "testuser",
@@ -170,6 +170,24 @@ export const mockProject: Project = {
     totalCommits: 127,
     lastCommitAt: "2025-12-04T10:30:00Z",
   },
+};
+
+export const mockWeeklyCommits = [
+  { dayOfWeek: 2, count: 3 },
+  { dayOfWeek: 3, count: 5 },
+  { dayOfWeek: 4, count: 8 },
+  { dayOfWeek: 5, count: 4 },
+  { dayOfWeek: 6, count: 6 },
+  { dayOfWeek: 7, count: 2 },
+  { dayOfWeek: 1, count: 1 },
+];
+
+export const mockCommitSummary = {
+  projectId: 1,
+  totalCommits: 127,
+  latestCommitDate: "2025-12-08T10:30:00Z",
+  commitsThisWeek: 29,
+  mostActiveDay: "금요일",
 };
 
 export const mockDashboard: DashboardResponse = {

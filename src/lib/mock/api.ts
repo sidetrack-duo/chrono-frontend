@@ -4,6 +4,8 @@ import {
   mockProjects,
   mockProject,
   mockDashboard,
+  mockWeeklyCommits,
+  mockCommitSummary,
 } from "./data";
 import {
   User,
@@ -17,6 +19,8 @@ import {
   UpdateGithubUsernameResponse,
   UpdateProfileRequest,
   ProjectStatus,
+  WeeklyCommitCount,
+  CommitSummary,
 } from "@/types/api";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -89,6 +93,17 @@ export const mockApi = {
     getDashboard: async (): Promise<DashboardResponse> => {
       await delay(500);
       return mockDashboard;
+    },
+  },
+
+  commit: {
+    getWeeklyCommits: async (_projectId: number): Promise<WeeklyCommitCount[]> => {
+      await delay(300);
+      return mockWeeklyCommits;
+    },
+    getCommitSummary: async (_projectId: number): Promise<CommitSummary> => {
+      await delay(300);
+      return mockCommitSummary;
     },
   },
 };

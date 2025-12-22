@@ -12,7 +12,17 @@ export async function getMe(): Promise<User> {
   if (import.meta.env.DEV && import.meta.env.VITE_USE_MOCK === "true") {
     return mockApi.user.getMe();
   }
-  throw new Error("백엔드에 사용자 정보 조회 API가 없습니다.");
+  
+  try {
+    const response = await apiClient.get<User>("/users/me");
+    return response.data;
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn("사용자 정보 조회 API 호출 실패, mock 데이터 사용:", error);
+      return mockApi.user.getMe();
+    }
+    throw error;
+  }
 }
 
 export async function updateGithubUsername(
@@ -30,7 +40,17 @@ export async function updateProfile(
   if (import.meta.env.DEV && import.meta.env.VITE_USE_MOCK === "true") {
     return mockApi.user.updateProfile(data);
   }
-  throw new Error("백엔드에 프로필 수정 API가 없습니다.");
+  
+  try {
+    const response = await apiClient.put<User>("/users/me", data);
+    return response.data;
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn("프로필 수정 API 호출 실패, mock 데이터 사용:", error);
+      return mockApi.user.updateProfile(data);
+    }
+    throw error;
+  }
 }
 
 export async function updatePassword(data: UpdatePasswordRequest): Promise<void> {

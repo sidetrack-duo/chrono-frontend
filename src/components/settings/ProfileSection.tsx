@@ -115,7 +115,7 @@ export function ProfileSection({ user, onUpdate }: ProfileSectionProps) {
           />
         </div>
 
-        <Button type="submit" isLoading={isLoading} className="w-full md:w-auto">
+        <Button type="submit" isLoading={isLoading} className="w-full md:w-auto mb-7">
           닉네임 변경
         </Button>
       </form>

@@ -101,8 +101,11 @@ export function ProjectDetailPage() {
       const data = await getProject(Number(id));
       setProject(data);
     } catch (err) {
-      setError("프로젝트 정보를 불러오는데 실패했습니다.");
-      console.error(err);
+      if (isApiError(err)) {
+        setError(err.message || "프로젝트 정보를 불러오는데 실패했습니다.");
+      } else {
+        setError("프로젝트 정보를 불러오는데 실패했습니다.");
+      }
     } finally {
       setIsLoading(false);
     }

@@ -8,6 +8,7 @@ import { ProjectPreview } from "@/components/projects/ProjectPreview";
 import { SkeletonCard, SkeletonCardContent } from "@/components/common/Skeleton";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
+import { isApiError } from "@/lib/api/client";
 
 type FilterStatus = "all" | "in_progress" | "completed";
 type SortOption = "recent" | "commits" | "created";
@@ -30,8 +31,11 @@ export function ProjectListPage() {
       const data = await getProjects();
       setProjects(data);
     } catch (err) {
-      setError("프로젝트 목록을 불러오는데 실패했습니다.");
-      console.error(err);
+      if (isApiError(err)) {
+        setError(err.message || "프로젝트 목록을 불러오는데 실패했습니다.");
+      } else {
+        setError("프로젝트 목록을 불러오는데 실패했습니다.");
+      }
     } finally {
       setIsLoading(false);
     }

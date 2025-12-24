@@ -4,6 +4,7 @@ import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { Project } from "@/types/api";
 import { useToastStore } from "@/stores/toastStore";
+import { isApiError } from "@/lib/api/client";
 
 export interface ProjectEditModalProps {
   isOpen: boolean;
@@ -130,7 +131,7 @@ export function ProjectEditModal({
       showToast("프로젝트가 수정되었습니다.", "success");
       onClose();
     } catch (err) {
-      if (err instanceof Error) {
+      if (isApiError(err)) {
         const errorMessage = err.message;
         if (errorMessage.includes("제목") || errorMessage.includes("title")) {
           setTitleMessage(errorMessage);

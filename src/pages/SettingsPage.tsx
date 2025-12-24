@@ -7,9 +7,12 @@ import { ProfileSection } from "@/components/settings/ProfileSection";
 import { PasswordSection } from "@/components/settings/PasswordSection";
 import { GitHubSection } from "@/components/settings/GitHubSection";
 import { AccountDeletionSection } from "@/components/settings/AccountDeletionSection";
+import { isApiError } from "@/lib/api/client";
+import { useToastStore } from "@/stores/toastStore";
 
 export function SettingsPage() {
   const { user, setUser } = useAuthStore();
+  const showToast = useToastStore((state) => state.showToast);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -17,7 +20,11 @@ export function SettingsPage() {
         const userData = await getMe();
         setUser(userData);
       } catch (err) {
-        console.error("Failed to load user data:", err);
+        if (isApiError(err)) {
+          showToast(err.message || "사용자 정보를 불러오는데 실패했습니다.", "error");
+        } else {
+          showToast("사용자 정보를 불러오는데 실패했습니다.", "error");
+        }
       }
     };
 

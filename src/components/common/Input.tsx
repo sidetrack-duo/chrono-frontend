@@ -30,13 +30,13 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               "placeholder:text-gray-400",
               "focus:border-primary focus:outline-none",
               "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500",
-              error && "border-red-500 focus:border-red-500",
+              error !== undefined && "border-accent focus:border-accent",
               className
             )}
             {...props}
           />
         </div>
-        {error && <p className="text-xs text-accent-dark">{error}</p>}
+        {error && error.trim() && <p className="text-xs text-accent-dark">{error}</p>}
         {!error && helperText && (
           <p className="text-xs text-gray-500">{helperText}</p>
         )}

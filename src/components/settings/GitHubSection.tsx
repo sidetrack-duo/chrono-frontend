@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { Card } from "@/components/common/Card";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { updateGithubUsername } from "@/lib/api/user";
-import { connectGitHubPat, disconnectGitHubPat } from "@/lib/api/github";
+import { connectGitHubPat, disconnectGitHubPat, validateGitHubUsername } from "@/lib/api/github";
 import { isApiError } from "@/lib/api/client";
 import { useToastStore } from "@/stores/toastStore";
 import { Github, ExternalLink, HelpCircle, ShieldCheck } from "lucide-react";
@@ -14,20 +14,124 @@ interface GitHubSectionProps {
   onUpdate: (username: string) => void;
 }
 
+type ValidationStatus = 'idle' | 'validating' | 'valid' | 'invalid';
+
+interface ValidationState {
+  status: ValidationStatus;
+  message: string | null;
+}
+
 export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps) {
   const showToast = useToastStore((state) => state.showToast);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [githubUsername, setGithubUsername] = useState(initialUsername);
+  const [githubUsernameValidation, setGithubUsernameValidation] = useState<ValidationState>({
+    status: 'idle',
+    message: null,
+  });
   
   const [isPatLoading, setIsPatLoading] = useState(false);
   const [patError, setPatError] = useState<string | null>(null);
   const [patSuccess, setPatSuccess] = useState<string | null>(null);
   const [patUsername, setPatUsername] = useState(initialUsername);
+  const [patUsernameValidation, setPatUsernameValidation] = useState<ValidationState>({
+    status: 'idle',
+    message: null,
+  });
   const [patToken, setPatToken] = useState("");
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [isDisconnectModalOpen, setIsDisconnectModalOpen] = useState(false);
+
+  const githubUsernameTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const patUsernameTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // GitHub Username 검증 함수
+  const validateUsername = async (username: string, setValidation: (state: ValidationState) => void) => {
+    if (!username.trim()) {
+      setValidation({ status: 'idle', message: null });
+      return;
+    }
+
+    if (username.trim() === initialUsername) {
+      setValidation({ status: 'idle', message: null });
+      return;
+    }
+
+    setValidation({ status: 'validating', message: '...' });
+
+    try {
+      const result = await validateGitHubUsername(username.trim());
+      if (result.valid) {
+        setValidation({
+          status: 'valid',
+          message: '사용 가능한 GitHub Username',
+        });
+      } else {
+        const errorMessage = result.message || '존재하지 않는 GitHub Username';
+        setValidation({
+          status: 'invalid',
+          message: errorMessage.includes('사용자') || errorMessage.includes('사용자를 찾을 수 없습니다')
+            ? '존재하지 않는 GitHub Username'
+            : errorMessage,
+        });
+      }
+    } catch (err) {
+      if (isApiError(err)) {
+        if (err.code === 'GITHUB_RATE_LIMIT') {
+          setValidation({
+            status: 'invalid',
+            message: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요',
+          });
+        } else {
+          setValidation({
+            status: 'invalid',
+            message: err.message || '검증 중 오류가 발생했습니다',
+          });
+        }
+      } else {
+        setValidation({
+          status: 'invalid',
+          message: '검증 중 오류가 발생했습니다',
+        });
+      }
+    }
+  };
+
+  // GitHub Username debounce 검증
+  useEffect(() => {
+    if (githubUsernameTimeoutRef.current) {
+      clearTimeout(githubUsernameTimeoutRef.current);
+    }
+
+    githubUsernameTimeoutRef.current = setTimeout(() => {
+      validateUsername(githubUsername, setGithubUsernameValidation);
+    }, 500);
+
+    return () => {
+      if (githubUsernameTimeoutRef.current) {
+        clearTimeout(githubUsernameTimeoutRef.current);
+      }
+    };
+  }, [githubUsername, initialUsername]);
+
+  // PAT Username debounce 검증
+  useEffect(() => {
+    if (patUsernameTimeoutRef.current) {
+      clearTimeout(patUsernameTimeoutRef.current);
+    }
+
+    patUsernameTimeoutRef.current = setTimeout(() => {
+      validateUsername(patUsername, setPatUsernameValidation);
+    }, 500);
+
+    return () => {
+      if (patUsernameTimeoutRef.current) {
+        clearTimeout(patUsernameTimeoutRef.current);
+      }
+    };
+  }, [patUsername, initialUsername]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,18 +252,36 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
         )}
 
         <div className="space-y-1.5">
-          <label htmlFor="githubUsername" className="block text-sm font-medium text-gray-700">
-            GitHub Username
-          </label>
-          <p className="text-xs text-gray-500">프로젝트를 만들 때 필요해요.</p>
+          <div className="flex items-center justify-between">
+            <label htmlFor="githubUsername" className="block text-sm font-medium text-gray-700">
+              GitHub Username
+            </label>
+            {githubUsernameValidation.message && (
+              <span
+                className={`text-xs ${
+                  githubUsernameValidation.status === 'valid'
+                    ? 'text-primary-dark'
+                    : githubUsernameValidation.status === 'invalid'
+                    ? 'text-accent-dark'
+                    : 'text-gray-500'
+                }`}
+              >
+                {githubUsernameValidation.message}
+              </span>
+            )}
+          </div>
           <Input
             id="githubUsername"
             type="text"
             placeholder="예: octocat"
             value={githubUsername}
-            onChange={(e) => setGithubUsername(e.target.value)}
+            onChange={(e) => {
+              setGithubUsername(e.target.value);
+              setGithubUsernameValidation({ status: 'idle', message: null });
+            }}
             required
             label=""
+            error={undefined}
           />
         </div>
 
@@ -200,15 +322,39 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
             </div>
           )}
 
-          <Input
-            id="patUsername"
-            type="text"
-            label="GitHub Username"
-            placeholder="예: octocat"
-            value={patUsername}
-            onChange={(e) => setPatUsername(e.target.value)}
-            required
-          />
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label htmlFor="patUsername" className="block text-sm font-medium text-gray-700">
+                GitHub Username
+              </label>
+              {patUsernameValidation.message && (
+                <span
+                  className={`text-xs ${
+                    patUsernameValidation.status === 'valid'
+                      ? 'text-primary-dark'
+                      : patUsernameValidation.status === 'invalid'
+                      ? 'text-accent-dark'
+                      : 'text-gray-500'
+                  }`}
+                >
+                  {patUsernameValidation.message}
+                </span>
+              )}
+            </div>
+            <Input
+              id="patUsername"
+              type="text"
+              placeholder="예: octocat"
+              value={patUsername}
+              onChange={(e) => {
+                setPatUsername(e.target.value);
+                setPatUsernameValidation({ status: 'idle', message: null });
+              }}
+              required
+              label=""
+              error={undefined}
+            />
+          </div>
 
           <Input
             id="patToken"

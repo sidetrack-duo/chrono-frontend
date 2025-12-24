@@ -239,7 +239,7 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 mb-2">
           <div className="flex items-center justify-between">
             <label htmlFor="githubUsername" className="block text-sm font-medium text-gray-700">
               GitHub Username
@@ -273,12 +273,12 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
           />
         </div>
 
-        <Button type="submit" isLoading={isLoading} className="-mt-2 w-full md:w-auto">
+        <Button type="submit" isLoading={isLoading} className="w-full md:w-auto">
           GitHub 연동
         </Button>
       </form>
 
-      <div className="mt-8 rounded-lg bg-zinc-50 p-6">
+      <div className="mt-3 rounded-lg bg-zinc-50 p-6">
         <div className="mb-4">
           <h3 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-1.5">
             <span>PAT 연동 (선택)</span>
@@ -293,7 +293,7 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
               </span>
             </span>
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-xs text-gray-500">
             Personal Access Token(PAT)을 등록하면 private repository까지 분석할 수 있어요.
           </p>
         </div>
@@ -333,15 +333,17 @@ export function GitHubSection({ initialUsername, onUpdate }: GitHubSectionProps)
             />
           </div>
 
-          <Input
-            id="patToken"
-            type="password"
-            label="Personal Access Token(PAT)"
-            placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-            value={patToken}
-            onChange={(e) => setPatToken(e.target.value)}
-            required
-          />
+          <div className="mb-2">
+            <Input
+              id="patToken"
+              type="password"
+              label="Personal Access Token(PAT)"
+              placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+              value={patToken}
+              onChange={(e) => setPatToken(e.target.value)}
+              required
+            />
+          </div>
 
           <div className="flex items-center gap-2">
             <Button type="submit" isLoading={isPatLoading} className="w-full md:w-auto">

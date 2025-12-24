@@ -284,7 +284,7 @@ export function ForgotPasswordPage() {
                       setCodeMessage(null);
                       setPasswordMessage(null);
                     }}
-                    className="text-xs uppercase text-gray-500 hover:text-primary"
+                    className="text-xs uppercase text-gray-500 hover:text-primary cursor-pointer"
                   >
                     이메일 다시 입력
                   </button>

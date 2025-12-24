@@ -5,6 +5,7 @@ import { Input } from "@/components/common/Input";
 import { Select } from "@/components/common/Select";
 import { Card } from "@/components/common/Card";
 import { useAuthStore } from "@/stores/authStore";
+import { useToastStore } from "@/stores/toastStore";
 import { getRepos } from "@/lib/api/github";
 import { createProject } from "@/lib/api/project";
 import { getMe } from "@/lib/api/user";
@@ -13,13 +14,13 @@ import { GitHubRepo } from "@/types/api";
 
 export function ProjectCreatePage() {
   const navigate = useNavigate();
+  const showToast = useToastStore((state) => state.showToast);
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingRepos, setIsLoadingRepos] = useState(false);
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -34,7 +35,7 @@ export function ProjectCreatePage() {
           const userData = await getMe();
           setUser(userData);
           if (!userData.githubUsername) {
-            setError("GitHub username이 설정되지 않았습니다. 설정 페이지에서 GitHub username을 설정해주세요.");
+            showToast("GitHub Username이 설정되지 않았습니다. 설정 페이지에서 GitHub Username을 설정해주세요.", "error");
             return;
           }
         }
@@ -45,12 +46,12 @@ export function ProjectCreatePage() {
       } catch (err) {
         if (isApiError(err)) {
           if (err.code === "GITHUB_USERNAME_NOT_SET") {
-            setError("GitHub username이 설정되지 않았습니다. 설정 페이지에서 GitHub username을 설정해주세요.");
+            showToast("GitHub Username이 설정되지 않았습니다. 설정 페이지에서 GitHub Username을 설정해주세요.", "error");
           } else {
-            setError(err.message || "리포지토리 목록을 불러오는데 실패했습니다.");
+            showToast(err.message || "리포지토리 목록을 불러오는데 실패했습니다.", "error");
           }
         } else {
-          setError("리포지토리 목록을 불러오는데 실패했습니다.");
+          showToast("리포지토리 목록을 불러오는데 실패했습니다.", "error");
         }
       } finally {
         setIsLoadingRepos(false);
@@ -58,19 +59,18 @@ export function ProjectCreatePage() {
     };
 
     loadUserAndRepos();
-  }, [user, setUser]);
+  }, [user, setUser, showToast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
     if (!title.trim()) {
-      setError("제목을 입력해주세요.");
+      showToast("제목을 입력해주세요.", "error");
       return;
     }
 
     if (!repoName) {
-      setError("GitHub 리포지토리를 선택해주세요.");
+      showToast("GitHub 리포지토리를 선택해주세요.", "error");
       return;
     }
 
@@ -79,7 +79,7 @@ export function ProjectCreatePage() {
     try {
       const githubUsername = user?.githubUsername;
       if (!githubUsername) {
-        setError("GitHub username이 설정되지 않았습니다.");
+        showToast("GitHub Username이 설정되지 않았습니다.", "error");
         setIsLoading(false);
         return;
       }
@@ -94,12 +94,13 @@ export function ProjectCreatePage() {
         },
         githubUsername
       );
+      showToast("프로젝트가 생성되었습니다.", "success");
       navigate("/projects");
     } catch (err) {
       if (isApiError(err)) {
-        setError(err.message || "프로젝트 생성에 실패했습니다.");
+        showToast(err.message || "프로젝트 생성에 실패했습니다.", "error");
       } else {
-        setError("프로젝트 생성 중 오류가 발생했습니다.");
+        showToast("프로젝트 생성 중 오류가 발생했습니다.", "error");
       }
     } finally {
       setIsLoading(false);
@@ -119,12 +120,6 @@ export function ProjectCreatePage() {
       </div>
 
       <Card className="p-6 md:p-8">
-        {error && (
-          <div className="mb-6 rounded-lg bg-red-50 p-3 text-sm text-red-600">
-            {error}
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <Input
             id="title"

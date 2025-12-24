@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { Project } from "@/types/api";
+import { useToastStore } from "@/stores/toastStore";
 
 export interface ProjectEditModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export function ProjectEditModal({
   project,
   onSubmit,
 }: ProjectEditModalProps) {
+  const showToast = useToastStore((state) => state.showToast);
   const modalRef = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -30,7 +32,6 @@ export function ProjectEditModal({
   const [startDate, setStartDate] = useState("");
   const [targetDate, setTargetDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [titleMessage, setTitleMessage] = useState<string | null>(null);
   const [descriptionMessage, setDescriptionMessage] = useState<string | null>(null);
 
@@ -59,7 +60,6 @@ export function ProjectEditModal({
       setTechStack(project.techStack || "");
       setStartDate(project.startDate || "");
       setTargetDate(project.targetDate || "");
-      setError(null);
       setTitleMessage(null);
       setDescriptionMessage(null);
     }
@@ -84,7 +84,6 @@ export function ProjectEditModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
     setTitleMessage(null);
     setDescriptionMessage(null);
 
@@ -114,7 +113,7 @@ export function ProjectEditModal({
       finalStartDate === (project.startDate || "") &&
       finalTargetDate === (project.targetDate || "")
     ) {
-      setError("변경된 내용이 없습니다.");
+      showToast("변경된 내용이 없습니다.", "info");
       return;
     }
 
@@ -128,6 +127,7 @@ export function ProjectEditModal({
         startDate: finalStartDate,
         targetDate: finalTargetDate,
       });
+      showToast("프로젝트가 수정되었습니다.", "success");
       onClose();
     } catch (err) {
       if (err instanceof Error) {
@@ -137,10 +137,10 @@ export function ProjectEditModal({
         } else if (errorMessage.includes("설명") || errorMessage.includes("description")) {
           setDescriptionMessage(errorMessage);
         } else {
-          setError(errorMessage);
+          showToast(errorMessage, "error");
         }
       } else {
-        setError("프로젝트 수정에 실패했습니다.");
+        showToast("프로젝트 수정에 실패했습니다.", "error");
       }
     } finally {
       setIsLoading(false);
@@ -177,12 +177,6 @@ export function ProjectEditModal({
               <X className="h-5 w-5" />
             </button>
           </div>
-
-          {error && (
-            <div className="mb-6 rounded-lg bg-red-50 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>

@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { Select } from "@/components/common/Select";
@@ -11,12 +12,22 @@ import { createProject } from "@/lib/api/project";
 import { getMe } from "@/lib/api/user";
 import { isApiError } from "@/lib/api/client";
 import { GitHubRepo } from "@/types/api";
+import { cn } from "@/lib/utils";
 
 export function ProjectCreatePage() {
   const navigate = useNavigate();
   const showToast = useToastStore((state) => state.showToast);
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
+
+  const getTodayString = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  const today = getTodayString();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingRepos, setIsLoadingRepos] = useState(false);
@@ -27,15 +38,23 @@ export function ProjectCreatePage() {
   const [targetDate, setTargetDate] = useState("");
   const [techStack, setTechStack] = useState("");
   const [repoName, setRepoName] = useState("");
+  const [titleMessage, setTitleMessage] = useState<string | null>(null);
+  const [descriptionMessage, setDescriptionMessage] = useState<string | null>(null);
+  const hasLoadedRef = useRef(false);
+  const isLoadingRef = useRef(false);
 
   useEffect(() => {
+    if (hasLoadedRef.current || isLoadingRef.current) return;
+    
     const loadUserAndRepos = async () => {
+      isLoadingRef.current = true;
       try {
         if (!user?.githubUsername) {
           const userData = await getMe();
           setUser(userData);
           if (!userData.githubUsername) {
-            showToast("GitHub Username이 설정되지 않았습니다. 설정 페이지에서 GitHub Username을 설정해주세요.", "error");
+            hasLoadedRef.current = true;
+            isLoadingRef.current = false;
             return;
           }
         }
@@ -43,10 +62,12 @@ export function ProjectCreatePage() {
         setIsLoadingRepos(true);
         const repoList = await getRepos();
         setRepos(repoList);
+        hasLoadedRef.current = true;
       } catch (err) {
+        hasLoadedRef.current = true;
         if (isApiError(err)) {
           if (err.code === "GITHUB_USERNAME_NOT_SET") {
-            showToast("GitHub Username이 설정되지 않았습니다. 설정 페이지에서 GitHub Username을 설정해주세요.", "error");
+            return;
           } else {
             showToast(err.message || "리포지토리 목록을 불러오는데 실패했습니다.", "error");
           }
@@ -55,17 +76,49 @@ export function ProjectCreatePage() {
         }
       } finally {
         setIsLoadingRepos(false);
+        isLoadingRef.current = false;
       }
     };
 
     loadUserAndRepos();
-  }, [user, setUser, showToast]);
+  }, [user?.githubUsername]);
+
+  const validateTitle = (value: string): { valid: boolean; message?: string } => {
+    if (!value.trim()) {
+      return { valid: false, message: "제목을 입력해주세요." };
+    }
+    if (value.trim().length > 50) {
+      return { valid: false, message: "제목은 50자 이하여야 합니다." };
+    }
+    return { valid: true };
+  };
+
+  const validateDescription = (value: string): { valid: boolean; message?: string } => {
+    if (value.length > 1000) {
+      return { valid: false, message: "설명은 1000자 이하여야 합니다." };
+    }
+    return { valid: true };
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTitleMessage(null);
+    setDescriptionMessage(null);
 
-    if (!title.trim()) {
-      showToast("제목을 입력해주세요.", "error");
+    const titleValidation = validateTitle(title);
+    if (!titleValidation.valid) {
+      setTitleMessage(titleValidation.message || "제목 조건을 만족하지 않습니다.");
+      return;
+    }
+
+    const descriptionValidation = validateDescription(description);
+    if (!descriptionValidation.valid) {
+      setDescriptionMessage(descriptionValidation.message || "설명 조건을 만족하지 않습니다.");
+      return;
+    }
+
+    if (targetDate && targetDate < today) {
+      showToast("목표일은 오늘 이후 날짜만 선택할 수 있습니다.", "error");
       return;
     }
 
@@ -113,84 +166,155 @@ export function ProjectCreatePage() {
 
   return (
     <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center">
-      <div className="w-full max-w-2xl">
-        <Card className="border-0 p-6 md:p-8 shadow-sm">
+      <div className="w-full max-w-3xl">
+        <Card className="border-0 p-6 sm:p-8 shadow-sm">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">+ 새 프로젝트</h1>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <Input
-              id="title"
-              type="text"
-              label="제목"
-              placeholder="프로젝트 제목을 입력하세요"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
+            <div>
+              <Input
+                id="title"
+                type="text"
+                label="제목"
+                placeholder="프로젝트 제목을 입력해주세요 (최대 50자)"
+                value={title}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setTitle(value);
+                  if (titleMessage) {
+                    const validation = validateTitle(value);
+                    if (validation.valid) {
+                      setTitleMessage(null);
+                    } else {
+                      setTitleMessage(validation.message || null);
+                    }
+                  }
+                }}
+                required
+                error={titleMessage ? "" : undefined}
+              />
+              {titleMessage && (
+                <p className="mt-1.5 text-sm text-accent-dark">{titleMessage}</p>
+              )}
+            </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                설명
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                  설명
+                </label>
+                {descriptionMessage && (
+                  <span className="text-xs text-accent-dark">{descriptionMessage}</span>
+                )}
+              </div>
               <textarea
                 id="description"
                 rows={4}
-                className="flex w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all duration-200 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                placeholder="프로젝트에 대한 설명을 입력하세요"
+                className={`flex w-full rounded-lg border px-3 py-2 text-sm text-gray-900 transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-1 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 ${
+                  descriptionMessage
+                    ? "border-accent focus:border-accent focus:ring-accent"
+                    : "border-gray-300 bg-white focus:border-primary focus:ring-primary"
+                }`}
+                placeholder="프로젝트 설명을 입력해주세요"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setDescription(value);
+                  if (descriptionMessage || value.length > 0) {
+                    const validation = validateDescription(value);
+                    if (validation.valid) {
+                      setDescriptionMessage(null);
+                    } else {
+                      setDescriptionMessage(validation.message || null);
+                    }
+                  }
+                }}
               />
+              <p className="text-xs text-gray-500">{description.length}/1000</p>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <Input
-                id="targetDate"
-                type="date"
-                label="목표일"
-                value={targetDate}
-                onChange={(e) => setTargetDate(e.target.value)}
-              />
-
-              <Input
-                id="techStack"
-                type="text"
-                label="기술 스택"
-                placeholder="예: React, TypeScript, Node.js"
-                value={techStack}
-                onChange={(e) => setTechStack(e.target.value)}
-              />
+            <div className="space-y-1.5 w-full">
+              <label htmlFor="targetDate" className="block text-sm font-medium text-gray-700">
+                목표
+              </label>
+              <div className="relative group">
+                <input
+                  id="targetDate"
+                  type="date"
+                  value={targetDate}
+                  onChange={(e) => setTargetDate(e.target.value)}
+                  min={today}
+                  className={cn(
+                    "flex h-10 w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 py-2 text-sm transition-all duration-200",
+                    "focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary",
+                    "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500",
+                    "date-input-custom",
+                    !targetDate ? "text-transparent focus:text-gray-900" : "text-gray-900"
+                  )}
+                  style={{
+                    colorScheme: "light",
+                  }}
+                />
+                {!targetDate && (
+                  <span className="absolute left-10 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none group-focus-within:hidden">
+                    프로젝트 목표일을 선택해주세요
+                  </span>
+                )}
+              </div>
             </div>
+
+            <Input
+              id="techStack"
+              type="text"
+              label="기술 스택"
+              placeholder="예: React, TypeScript, Node.js"
+              value={techStack}
+              onChange={(e) => setTechStack(e.target.value)}
+            />
 
             <Select
               id="repoName"
-              label="GitHub 리포지토리"
+              label="프로젝트 리포지토리"
               options={
                 isLoadingRepos
                   ? [{ value: "", label: "로딩 중..." }]
                   : repoOptions.length > 0
-                  ? [{ value: "", label: "리포지토리를 선택하세요" }, ...repoOptions]
-                  : [{ value: "", label: "사용 가능한 리포지토리가 없습니다" }]
+                  ? [{ value: "", label: "GitHub 리포지토리 선택" }, ...repoOptions]
+                  : [{ value: "", label: "GitHub 리포지토리를 선택할 수 없습니다" }]
               }
               value={repoName}
               onChange={(e) => setRepoName(e.target.value)}
               required
               disabled={isLoadingRepos || repoOptions.length === 0}
               helperText={
-                isLoadingRepos
-                  ? "리포지토리 목록을 불러오는 중..."
-                  : repoOptions.length === 0
-                  ? "GitHub username을 설정하고 public 리포지토리가 있는지 확인해주세요."
-                  : undefined
+                isLoadingRepos ? (
+                  "리포지토리 목록을 불러오는 중..."
+                ) : repoOptions.length === 0 ? (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                    <span className="text-xs text-gray-500">GitHub Username을 먼저 등록하고 리포지토리를 확인해주세요</span>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate("/settings");
+                      }}
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary-dark underline cursor-pointer shrink-0"
+                    >
+                      GitHub Username 등록 바로가기
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                ) : undefined
               }
             />
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-1">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate("/projects")}
-                className="flex-1"
+                className="w-full sm:flex-1"
               >
                 취소
               </Button>
@@ -198,9 +322,9 @@ export function ProjectCreatePage() {
                 type="submit"
                 isLoading={isLoading}
                 disabled={isLoadingRepos || repoOptions.length === 0}
-                className="flex-1"
+                className="w-full sm:flex-1"
               >
-                생성하기
+                생성
               </Button>
             </div>
           </form>

@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ExternalLink, GitCommitVertical, Calendar, Target, CircleAlert, Flame, Github, RefreshCw, Sparkle, ChevronLeft, ChevronDown } from "lucide-react";
+import { ExternalLink, GitCommitVertical, GitCommitHorizontal, Calendar, Target, CircleAlert, Flame, Github, RefreshCw, Sparkle, ChevronLeft, ChevronDown } from "lucide-react";
 import { getProject, deleteProject, updateProjectStatus, updateProject } from "@/lib/api/project";
-import { syncCommits, getCommitSummary, getCommitHistory, getAllCommits, getWeeklyCommits } from "@/lib/api/commit";
+import { syncCommits, getCommitSummary, getCommitHistory, getAllCommits } from "@/lib/api/commit";
 import { isApiError } from "@/lib/api/client";
-import { Project, ProjectStatus, CommitSummary, CommitHistoryCount, Commit, WeeklyCommitCount } from "@/types/api";
+import { Project, ProjectStatus, CommitSummary, CommitHistoryCount, Commit } from "@/types/api";
 import { Badge } from "@/components/common/Badge";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { ProjectEditModal } from "@/components/projects/ProjectEditModal";
@@ -30,41 +30,39 @@ function CommitHistoryChart({ history }: { history: CommitHistoryCount[] }) {
   const displayHistory = sortedHistory.slice(-14);
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-end justify-between gap-1">
-        {displayHistory.map((item) => {
-          const height = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
-          const intensity = getCommitIntensity(item.count);
-          return (
-            <div
-              key={item.date}
-              className="group flex flex-1 flex-col items-center gap-2"
-            >
-              <div className="relative flex w-full items-end" style={{ height: "80px" }}>
-                {item.count > 0 && (
-                  <span
-                    className="absolute left-1/2 -translate-x-1/2 text-xs text-gray-500 opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap"
-                    style={{
-                      bottom: `calc(${Math.max(height, item.count > 0 ? 12 : 4)}% + 4px)`,
-                    }}
-                  >
-                    {item.count}
-                  </span>
-                )}
-                <div
-                  className={`w-full rounded-t-lg ${intensity.bg} transition-all hover:opacity-80`}
+    <div className="flex items-end justify-between gap-0">
+      {displayHistory.map((item) => {
+        const height = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
+        const intensity = getCommitIntensity(item.count);
+        return (
+          <div
+            key={item.date}
+            className="group flex flex-1 flex-col items-center gap-2"
+          >
+            <div className="relative flex w-full items-end" style={{ height: "60px" }}>
+              {item.count > 0 && (
+                <span
+                  className="absolute left-1/2 -translate-x-1/2 text-xs text-gray-500 opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap"
                   style={{
-                    height: `${Math.max(height, item.count > 0 ? 12 : 4)}%`,
-                    minHeight: item.count > 0 ? "20px" : "4px",
+                    bottom: `${60 * (Math.max(height, item.count > 0 ? 12 : 4) / 100) + 6}px`,
                   }}
-                  title={`${formatDate(item.date)}: ${item.count} commits`}
-                />
-              </div>
-              <span className="text-xs text-gray-500">{formatDate(item.date)}</span>
+                >
+                  {item.count}
+                </span>
+              )}
+              <div
+                className={`w-full rounded-t ${intensity.bg} transition-all hover:opacity-80`}
+                style={{
+                  height: `${Math.max(height, item.count > 0 ? 12 : 4)}%`,
+                  minHeight: item.count > 0 ? "16px" : "4px",
+                }}
+                title={`${formatDate(item.date)}: ${item.count} commits`}
+              />
             </div>
-          );
-        })}
-      </div>
+            <span className="text-[11px] text-gray-500">{formatDate(item.date)}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -81,12 +79,10 @@ export function ProjectDetailPage() {
   const [commitSummary, setCommitSummary] = useState<CommitSummary | null>(null);
   const [commitHistory, setCommitHistory] = useState<CommitHistoryCount[]>([]);
   const [commits, setCommits] = useState<Commit[]>([]);
-  const [weeklyCommits, setWeeklyCommits] = useState<WeeklyCommitCount[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isLoadingCommits, setIsLoadingCommits] = useState(false);
-  const [isLoadingWeekly, setIsLoadingWeekly] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -153,20 +149,6 @@ export function ProjectDetailPage() {
     }
   };
 
-  const loadWeeklyCommits = async () => {
-    if (!id) return;
-    
-    try {
-      setIsLoadingWeekly(true);
-      const weeklyData = await getWeeklyCommits(Number(id));
-      setWeeklyCommits(weeklyData);
-    } catch (err) {
-      console.error("주간 커밋 통계를 불러오는데 실패했습니다:", err);
-    } finally {
-      setIsLoadingWeekly(false);
-    }
-  };
-
   useEffect(() => {
     if (!id) {
       setError("프로젝트 ID가 없습니다.");
@@ -178,7 +160,6 @@ export function ProjectDetailPage() {
     loadCommitSummary();
     loadCommitHistory();
     loadCommits();
-    loadWeeklyCommits();
   }, [id]);
 
   const handleSyncCommits = async () => {
@@ -192,7 +173,6 @@ export function ProjectDetailPage() {
       await loadCommitSummary();
       await loadCommitHistory();
       await loadCommits();
-      await loadWeeklyCommits();
     } catch (err) {
       if (isApiError(err)) {
         showToast(err.message || "커밋 동기화에 실패했습니다.", "error");
@@ -302,6 +282,104 @@ export function ProjectDetailPage() {
     return { label: `D-${dday}`, isUrgent: false };
   };
 
+  const getDaysSinceLastCommit = (lastCommitAt: string): number | null => {
+    if (!lastCommitAt) return null;
+    const today = new Date();
+    const lastCommit = new Date(lastCommitAt);
+    const diffTime = today.getTime() - lastCommit.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const lastCommitAt = project?.lastCommitAt || project?.github?.lastCommitAt;
+  const daysAgo = lastCommitAt ? getDaysSinceLastCommit(lastCommitAt) : null;
+
+  const displayHistory = useMemo(() => {
+    if (commitHistory.length === 0) return [];
+    const sortedHistory = [...commitHistory].sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    return sortedHistory.slice(-14);
+  }, [commitHistory]);
+
+  const totalCommits = useMemo(() => 
+    displayHistory.reduce((sum, h) => sum + h.count, 0), 
+    [displayHistory]
+  );
+
+  const dateRange = useMemo(() => {
+    if (displayHistory.length === 0) return "";
+    const firstDate = new Date(displayHistory[0].date);
+    const lastDate = new Date(displayHistory[displayHistory.length - 1].date);
+    const formatDate = (date: Date) => {
+      return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+    };
+    return `${formatDate(firstDate)} ~ ${formatDate(lastDate)}`;
+  }, [displayHistory]);
+
+  const streakDays = useMemo(() => {
+    if (commitHistory.length === 0) return 0;
+    
+    const sortedHistory = [...commitHistory].sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    
+    let count = 0;
+    let previousDate: Date | null = null;
+    
+    for (const item of sortedHistory) {
+      if (item.count === 0) break;
+      
+      const currentDate = new Date(item.date);
+      currentDate.setHours(0, 0, 0, 0);
+      
+      if (previousDate === null) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const diffDays = Math.floor((today.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) {
+          count = 1;
+          previousDate = currentDate;
+        } else if (diffDays === 1) {
+          count = 1;
+          previousDate = currentDate;
+        } else {
+          break;
+        }
+      } else {
+        const diffDays = Math.floor((previousDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) {
+          count++;
+          previousDate = currentDate;
+        } else {
+          break;
+        }
+      }
+    }
+    
+    return count;
+  }, [commitHistory]);
+
+  const mostActiveDayName = useMemo(() => {
+    if (displayHistory.length === 0) return null;
+    const maxCount = Math.max(...displayHistory.map((h) => h.count), 0);
+    if (maxCount === 0) return null;
+    const mostActiveDay = displayHistory.find((h) => h.count === maxCount);
+    if (!mostActiveDay) return null;
+    const date = new Date(mostActiveDay.date);
+    const dayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+    return dayNames[date.getDay()];
+  }, [displayHistory]);
+
+  const techStackArray = project?.techStack
+    ? project.techStack.split(",").map((s) => s.trim())
+    : [];
+  const dday = project && project.status !== ProjectStatus.COMPLETED ? getDday(project.targetDate) : null;
+  const ddayInfo = dday !== null ? getDdayLabel(dday) : null;
+  const repoUrl = project ? `https://github.com/${project.repoOwner}/${project.repoName}` : "";
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -347,24 +425,6 @@ export function ProjectDetailPage() {
       </div>
     );
   }
-
-  const getDaysSinceLastCommit = (lastCommitAt: string): number | null => {
-    if (!lastCommitAt) return null;
-    const today = new Date();
-    const lastCommit = new Date(lastCommitAt);
-    const diffTime = today.getTime() - lastCommit.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
-  const lastCommitAt = project.lastCommitAt || project.github?.lastCommitAt;
-  const daysAgo = lastCommitAt ? getDaysSinceLastCommit(lastCommitAt) : null;
-  const techStackArray = project.techStack
-    ? project.techStack.split(",").map((s) => s.trim())
-    : [];
-  const dday = project.status !== ProjectStatus.COMPLETED ? getDday(project.targetDate) : null;
-  const ddayInfo = dday !== null ? getDdayLabel(dday) : null;
-  const repoUrl = `https://github.com/${project.repoOwner}/${project.repoName}`;
 
   return (
     <div className="space-y-6">
@@ -563,7 +623,7 @@ export function ProjectDetailPage() {
         <div className="flex flex-col">
           <div className="flex-1 rounded-xl bg-white p-6 shadow-sm">
             
-            {isLoadingSummary || isLoadingWeekly ? (
+            {isLoadingSummary || isLoadingHistory ? (
               <div className="flex items-center justify-center rounded-lg bg-zinc-50 py-12">
                 <div className="text-center">
                   <div className="h-8 w-8 mx-auto mb-3 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -590,25 +650,19 @@ export function ProjectDetailPage() {
                   <span className="text-base font-semibold text-gray-900">{getTimeLabel(daysAgo)}</span>
                 </div>
 
-                {commitSummary && weeklyCommits.length > 0 && (
+                {commitHistory.length > 0 && (
                   <div className="pt-5">
                     <div className="mb-8">
                       <div className="flex items-start justify-between">
                         <div>
-                          <h2 className="text-lg font-semibold text-gray-900">최근 일주일간 {commitSummary.commitsThisWeek ?? 0}번 커밋했어요</h2>
-                          <p className="mt-1 text-sm text-gray-500">
-                            {(() => {
-                              const today = new Date();
-                              const monday = new Date(today);
-                              monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-                              const sunday = new Date(monday);
-                              sunday.setDate(monday.getDate() + 6);
-                              const formatDate = (date: Date) => {
-                                return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
-                              };
-                              return `${formatDate(monday)} ~ ${formatDate(sunday)}`;
-                            })()}
-                          </p>
+                          <h2 className="text-lg font-semibold text-gray-900">
+                            최근 14일간 {totalCommits}번 커밋했어요
+                          </h2>
+                          {dateRange && (
+                            <p className="mt-1 text-sm text-gray-500">
+                              {dateRange}
+                            </p>
+                          )}
                         </div>
                         <button
                           onClick={handleSyncCommits}
@@ -622,65 +676,25 @@ export function ProjectDetailPage() {
                     </div>
 
                     <div className="space-y-4">
-                      <div className="flex items-end justify-between gap-2">
-                        {[2, 3, 4, 5, 6, 7, 1].map((dayOfWeek) => {
-                          const commit = weeklyCommits.find((c) => c.dayOfWeek === dayOfWeek);
-                          const count = commit?.count ?? 0;
-                          const dayIndex = (dayOfWeek - 2 + 7) % 7;
-                          const counts = [2, 3, 4, 5, 6, 7, 1].map((d) => weeklyCommits.find((c) => c.dayOfWeek === d)?.count ?? 0);
-                          const maxCommits = counts.length > 0 ? Math.max(...counts, 1) : 1;
-                          const height = maxCommits > 0 ? (count / maxCommits) * 100 : 0;
-                          const intensity = getCommitIntensity(count);
-                          return (
-                            <div
-                              key={dayOfWeek}
-                              className="group flex flex-1 flex-col items-center gap-2"
-                            >
-                              <div className="relative flex w-full items-end" style={{ height: "60px" }}>
-                                {count > 0 && (
-                                  <span
-                                    className="absolute left-1/2 -translate-x-1/2 text-xs text-gray-500 opacity-0 transition-opacity group-hover:opacity-100"
-                                    style={{
-                                      bottom: `${60 * (Math.max(height, count > 0 ? 12 : 4) / 100) + 6}px`,
-                                    }}
-                                  >
-                                    {count}
-                                  </span>
-                                )}
-                                <div
-                                  className={`w-full rounded-t-lg ${intensity.bg} transition-all hover:opacity-80`}
-                                  style={{
-                                    height: `${Math.max(height, count > 0 ? 12 : 4)}%`,
-                                    minHeight: count > 0 ? "16px" : "4px",
-                                  }}
-                                  title={`${["월", "화", "수", "목", "금", "토", "일"][dayIndex]}: ${count} commits`}
-                                />
-                              </div>
-                              <span className="text-xs text-gray-500">{["월", "화", "수", "목", "금", "토", "일"][dayIndex]}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                      {isLoadingHistory ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        </div>
+                      ) : (
+                        <CommitHistoryChart history={commitHistory} />
+                      )}
 
                       <div className="flex flex-wrap items-center justify-center gap-4 border-t border-gray-100 pt-4">
-                        {(() => {
-                          const counts = [2, 3, 4, 5, 6, 7, 1].map((d) => weeklyCommits.find((c) => c.dayOfWeek === d)?.count ?? 0);
-                          let streakDays = 0;
-                          for (let i = counts.length - 1; i >= 0; i--) {
-                            if (counts[i] > 0) streakDays++;
-                            else break;
-                          }
-                          return streakDays > 0 ? (
-                            <div className="flex items-center gap-2 rounded-lg bg-accent-50 px-3 py-1.5">
-                              <GitCommitVertical className="h-4 w-4 text-accent" />
-                              <span className="text-xs font-medium text-accent">{streakDays}일 연속</span>
-                            </div>
-                          ) : null;
-                        })()}
-                        {commitSummary.mostActiveDay && (
+                        {streakDays > 0 && (
+                          <div className="flex items-center gap-2 rounded-lg bg-accent-50 px-3 py-1.5">
+                            <GitCommitHorizontal className="h-4 w-4 text-accent" />
+                            <span className="text-xs font-medium text-accent">{streakDays}일 연속</span>
+                          </div>
+                        )}
+                        {mostActiveDayName && (
                           <div className="flex items-center gap-2">
                             <Sparkle className="h-4 w-4 text-accent" />
-                            <span className="text-xs font-medium text-gray-500">{commitSummary.mostActiveDay}에 가장 활발했어요</span>
+                            <span className="text-xs font-medium text-gray-500">{mostActiveDayName}에 가장 활발했어요</span>
                           </div>
                         )}
                       </div>
@@ -688,71 +702,46 @@ export function ProjectDetailPage() {
                   </div>
                 )}
 
-                {commitHistory.length > 0 && (
-                  <div className="border-t border-gray-100 pt-6">
-                    <h3 className="mb-4 text-sm font-semibold text-gray-900">커밋 히스토리</h3>
-                    {isLoadingHistory ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      </div>
-                    ) : (
-                      <CommitHistoryChart history={commitHistory} />
-                    )}
-                  </div>
-                )}
-
-                {commits.length > 0 && (
-                  <div className="border-t border-gray-100 pt-6">
-                    <h3 className="mb-4 text-sm font-semibold text-gray-900">최근 커밋</h3>
-                    {isLoadingCommits ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {commits.slice(0, 10).map((commit) => (
-                          <div
-                            key={commit.sha}
-                            className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50"
-                          >
-                            <div className="mt-0.5 shrink-0">
-                              <GitCommitVertical className="h-4 w-4 text-gray-400" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-gray-900 line-clamp-2">
-                                {commit.message}
-                              </p>
-                              <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                                <span>{commit.authorName}</span>
-                                <span>•</span>
-                                <span>
-                                  {new Date(commit.commitDate).toLocaleDateString("ko-KR", {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                        {commits.length > 10 && (
-                          <p className="text-xs text-gray-500 text-center pt-2">
-                            총 {commits.length}개의 커밋 중 최근 10개만 표시됩니다.
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             )}
           </div>
         </div>
 
       </div>
+
+      {commits.length > 0 && (
+        <div className="rounded-xl bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900">최근 커밋</h3>
+          {isLoadingCommits ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {commits.slice(0, 5).map((commit) => (
+                <div key={commit.sha} className="flex flex-col gap-1">
+                  <p className="text-sm text-gray-900 line-clamp-2">
+                    {commit.message}
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <span>{commit.authorName}</span>
+                    <span>•</span>
+                    <span>
+                      {new Date(commit.commitDate).toLocaleDateString("ko-KR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex items-center justify-between">
         <button

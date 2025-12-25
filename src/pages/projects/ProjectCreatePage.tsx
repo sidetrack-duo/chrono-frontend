@@ -14,6 +14,7 @@ import { getMe } from "@/lib/api/user";
 import { isApiError } from "@/lib/api/client";
 import { GitHubRepo } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { POPULAR_TECH_STACKS } from "@/lib/constants/techStacks";
 
 export function ProjectCreatePage() {
   const navigate = useNavigate();
@@ -137,12 +138,18 @@ export function ProjectCreatePage() {
     setIsLoading(true);
 
     try {
+      let finalTechStack = techStack.trim();
+      if (techStackInput.trim()) {
+        addTechToStack(techStackInput);
+        finalTechStack = techStack.trim();
+      }
+
       await createProject(
         {
           title: title.trim(),
           description: description.trim() || undefined,
           targetDate: targetDate || undefined,
-          techStack: techStack.trim() || undefined,
+          techStack: finalTechStack || undefined,
           repoName,
         },
         githubUsername
@@ -177,6 +184,97 @@ export function ProjectCreatePage() {
     const newArray = techStackArray.filter((_, idx) => idx !== indexToRemove);
     setTechStack(newArray.join(", "));
   };
+
+  const [techStackInput, setTechStackInput] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const techStackInputRef = useRef<HTMLDivElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  const suggestions = useMemo(() => {
+    if (!techStackInput.trim() || !showSuggestions) return [];
+    const inputLower = techStackInput.toLowerCase();
+    const currentItems = techStackArray.map((s) => s.toLowerCase());
+    return POPULAR_TECH_STACKS.filter(
+      (tech) =>
+        tech.toLowerCase().includes(inputLower) &&
+        !currentItems.includes(tech.toLowerCase())
+    ).slice(0, 8);
+  }, [techStackInput, techStackArray, showSuggestions]);
+
+  const addTechToStack = (tech: string) => {
+    if (!tech.trim()) return;
+    const trimmedTech = tech.trim();
+    if (!techStackArray.map((s) => s.toLowerCase()).includes(trimmedTech.toLowerCase())) {
+      const newArray = [...techStackArray, trimmedTech];
+      setTechStack(newArray.join(", "));
+    }
+    setTechStackInput("");
+    setShowSuggestions(false);
+    setSelectedIndex(-1);
+  };
+
+  const handleTechStackInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTechStackInput(value);
+    
+    const lastCommaIndex = value.lastIndexOf(",");
+    if (lastCommaIndex >= 0) {
+      const parts = value.split(",").map(s => s.trim()).filter(Boolean);
+      const newTechs = parts.slice(0, parts.length - 1);
+      newTechs.forEach(tech => addTechToStack(tech));
+      setTechStackInput(parts[parts.length - 1] || "");
+    }
+    
+    setShowSuggestions(value.trim().length > 0);
+    setSelectedIndex(-1);
+  };
+
+  const handleSelectSuggestion = (tech: string) => {
+    addTechToStack(tech);
+  };
+
+  const handleTechStackKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (suggestions.length > 0) {
+        setSelectedIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+        handleSelectSuggestion(suggestions[selectedIndex]);
+      } else if (techStackInput.trim()) {
+        addTechToStack(techStackInput);
+      }
+    } else if (e.key === "Escape") {
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
+    } else if (e.key === "Backspace" && !techStackInput && techStackArray.length > 0) {
+      handleRemoveTech(techStackArray.length - 1);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        techStackInputRef.current &&
+        !techStackInputRef.current.contains(event.target as Node) &&
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center">
@@ -282,14 +380,43 @@ export function ProjectCreatePage() {
               <label htmlFor="techStack" className="block text-sm font-medium text-gray-700">
                 기술 스택
               </label>
-              <Input
-                id="techStack"
-                type="text"
-                placeholder="예: React, TypeScript, Node.js"
-                value={techStack}
-                onChange={(e) => setTechStack(e.target.value)}
-                label=""
-              />
+              <div className="relative" ref={techStackInputRef}>
+                <Input
+                  id="techStack"
+                  type="text"
+                  placeholder="기술 스택을 입력하세요. 쉼표(,) 또는 Enter로 추가됩니다"
+                  value={techStackInput}
+                  onChange={handleTechStackInputChange}
+                  onKeyDown={handleTechStackKeyDown}
+                  onFocus={() => {
+                    if (techStackInput.trim()) {
+                      setShowSuggestions(true);
+                    }
+                  }}
+                  label=""
+                />
+                {showSuggestions && suggestions.length > 0 && (
+                  <div
+                    ref={suggestionsRef}
+                    className="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg max-h-60 overflow-auto"
+                  >
+                    {suggestions.map((tech, idx) => (
+                      <button
+                        key={tech}
+                        type="button"
+                        onClick={() => handleSelectSuggestion(tech)}
+                        className={cn(
+                          "w-full px-3 py-2 text-left text-sm transition-colors",
+                          "hover:bg-gray-50",
+                          idx === selectedIndex && "bg-primary-50 text-primary"
+                        )}
+                      >
+                        {tech}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               {techStackArray.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {techStackArray.map((tech, idx) => (

@@ -328,7 +328,7 @@ export function ProjectCreatePage() {
                     ? "border-accent focus:border-accent focus:ring-accent"
                     : "border-gray-300 bg-white focus:border-primary focus:ring-primary"
                 }`}
-                placeholder="프로젝트 설명을 입력해주세요"
+                placeholder="프로젝트 설명을 추가할 수 있어요"
                 value={description}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -370,7 +370,7 @@ export function ProjectCreatePage() {
                 />
                 {!targetDate && (
                   <span className="absolute left-10 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none group-focus-within:hidden">
-                    프로젝트 목표일을 선택해주세요
+                    프로젝트 목표일을 설정해보세요
                   </span>
                 )}
               </div>

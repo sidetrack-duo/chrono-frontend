@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { Select } from "@/components/common/Select";
 import { Card } from "@/components/common/Card";
+import { Badge } from "@/components/common/Badge";
 import { useAuthStore } from "@/stores/authStore";
 import { useToastStore } from "@/stores/toastStore";
 import { getRepos } from "@/lib/api/github";
@@ -164,6 +165,19 @@ export function ProjectCreatePage() {
     label: repo.fullName,
   }));
 
+  const techStackArray = useMemo(() => {
+    if (!techStack.trim()) return [];
+    return techStack
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [techStack]);
+
+  const handleRemoveTech = (indexToRemove: number) => {
+    const newArray = techStackArray.filter((_, idx) => idx !== indexToRemove);
+    setTechStack(newArray.join(", "));
+  };
+
   return (
     <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center">
       <div className="w-full max-w-3xl">
@@ -264,14 +278,40 @@ export function ProjectCreatePage() {
               </div>
             </div>
 
-            <Input
-              id="techStack"
-              type="text"
-              label="기술 스택"
-              placeholder="예: React, TypeScript, Node.js"
-              value={techStack}
-              onChange={(e) => setTechStack(e.target.value)}
-            />
+            <div className="space-y-1.5 w-full">
+              <label htmlFor="techStack" className="block text-sm font-medium text-gray-700">
+                기술 스택
+              </label>
+              <Input
+                id="techStack"
+                type="text"
+                placeholder="예: React, TypeScript, Node.js"
+                value={techStack}
+                onChange={(e) => setTechStack(e.target.value)}
+                label=""
+              />
+              {techStackArray.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {techStackArray.map((tech, idx) => (
+                    <Badge
+                      key={`${tech}-${idx}`}
+                      variant="outline"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium"
+                    >
+                      <span>{tech}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTech(idx)}
+                        className="ml-0.5 -mr-0.5 rounded-full hover:bg-gray-100 p-0.5 transition-colors"
+                        aria-label={`${tech} 제거`}
+                      >
+                        <X className="h-3 w-3 text-gray-500" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <Select
               id="repoName"

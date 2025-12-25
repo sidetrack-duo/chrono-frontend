@@ -8,7 +8,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, helperText, id, ...props }, ref) => {
+  ({ className, label, error, helperText, id, required, ...props }, ref) => {
     const inputId = id || React.useId();
 
     return (
@@ -19,6 +19,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className="block text-sm font-medium text-gray-700"
           >
             {label}
+            {required && <span className="text-primary ml-1">*</span>}
           </label>
         )}
         <div className="relative">
@@ -28,11 +29,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               "flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all duration-200",
               "placeholder:text-gray-400",
-              "focus:border-primary focus:outline-none",
+              "focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary",
               "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500",
-              error !== undefined && "border-accent focus:border-accent",
+              error !== undefined && "border-accent focus:border-accent focus:ring-accent",
               className
             )}
+            required={required}
             {...props}
           />
         </div>

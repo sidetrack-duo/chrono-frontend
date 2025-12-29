@@ -1,9 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { CircleAlert, Flame, FolderOpen } from "lucide-react";
+import { CircleAlert, Flame } from "lucide-react";
 import { ProjectListItem, ProjectStatus } from "@/types/api";
 import { Badge } from "@/components/common/Badge";
-import { EmptyState } from "@/components/common/EmptyState";
 import { getDaysSinceLastCommit } from "@/utils/dashboard";
 
 interface RecentProjectsProps {
@@ -35,14 +34,9 @@ export function RecentProjects({
         </Link>
       </div>
       {projects.length === 0 ? (
-        <EmptyState
-          icon={FolderOpen}
-          title="프로젝트가 없습니다"
-          description="첫 프로젝트를 만들어보세요!"
-          actionLabel="+ 새 프로젝트 만들기"
-          actionLink="/projects/new"
-          className="bg-transparent shadow-none py-12"
-        />
+        <div className="py-12 text-center">
+          <p className="text-sm text-gray-500">최근 프로젝트가 없습니다</p>
+        </div>
       ) : (
         <div className="grid grid-cols-[24px_1fr] gap-x-4 gap-y-2 items-stretch">
           {projects.map((project, index) => {

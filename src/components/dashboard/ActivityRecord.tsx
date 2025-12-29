@@ -13,11 +13,25 @@ export function ActivityRecord({ totalWeekCommits, totalCommitsThisMonth, inProg
   // 추세 계산
   const weekAvg = totalWeekCommits / 7;
   const currentDay = new Date().getDate();
-  const monthAvg = totalCommitsThisMonth / currentDay;
-  const difference = ((weekAvg - monthAvg) / monthAvg) * 100;
+  const monthAvg = currentDay > 0 ? totalCommitsThisMonth / currentDay : 0;
+  const difference = monthAvg > 0 ? ((weekAvg - monthAvg) / monthAvg) * 100 : (weekAvg > 0 ? 100 : 0);
 
   const getTrendInfo = () => {
-    if (Math.abs(difference) < 5) {
+    if (totalWeekCommits === 0 && totalCommitsThisMonth === 0) {
+      return {
+        icon: Minus,
+        text: "아직 활동 기록이 없어요",
+        color: "text-gray-500",
+      };
+    }
+    if (monthAvg === 0) {
+      return {
+        icon: TrendingUp,
+        text: "이번 주 활동을 시작했어요",
+        color: "text-accent",
+      };
+    }
+    if (Math.abs(difference) < 5 || isNaN(difference) || !isFinite(difference)) {
       return {
         icon: Minus,
         text: "이번 주는 평소와 비슷해요",
@@ -43,14 +57,14 @@ export function ActivityRecord({ totalWeekCommits, totalCommitsThisMonth, inProg
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-sm">
-      <div className="mb-8">
+      <div className="mb-[28px]">
         <h2 className="text-lg font-semibold text-gray-900">지금까지</h2>
         <p className="mt-1 text-sm text-gray-500">당신의 개발 기록</p>
       </div>
 
       <div className="space-y-6">
         {/* 전체 프로젝트 - 큰 숫자 강조 */}
-        <div className="text-center">
+        <div className="text-center mb-[18px]">
           <div className="flex items-baseline justify-center gap-1">
             <span className="text-5xl font-black leading-none text-primary">{totalProjects}</span>
             <span className="text-sm text-gray-500">개의</span>
@@ -74,11 +88,11 @@ export function ActivityRecord({ totalWeekCommits, totalCommitsThisMonth, inProg
 
         {/* 커밋 섹션 */}
         <div className="space-y-3">
-          <div className="flex items-baseline justify-between rounded-lg bg-zinc-50 px-5 py-[18px]">
+          <div className="flex items-baseline justify-between rounded-lg bg-zinc-50 p-5">
             <span className="text-sm text-gray-500">이번 달 커밋</span>
             <span className="text-3xl font-bold text-gray-900">{totalCommitsThisMonth}</span>
           </div>
-          <div className="flex items-baseline justify-between rounded-lg bg-zinc-50 px-5 py-[18px]">
+          <div className="flex items-baseline justify-between rounded-lg bg-zinc-50 p-5">
             <span className="text-sm text-gray-500">이번 주 커밋</span>
             <span className="text-3xl font-bold text-gray-900">{totalWeekCommits}</span>
           </div>

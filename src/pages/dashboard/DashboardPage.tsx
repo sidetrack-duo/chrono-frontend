@@ -1,16 +1,41 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { ActivityOverview } from "@/components/dashboard/ActivityOverview";
 import { ActivityRecord } from "@/components/dashboard/ActivityRecord";
 import { RecentProjects } from "@/components/dashboard/RecentProjects";
 import { SkeletonCard, SkeletonCardContent, Skeleton } from "@/components/common/Skeleton";
 import { ErrorState } from "@/components/common/ErrorState";
-import { ProjectStatus } from "@/types/api";
+import { ProjectStatus, ProjectListItem } from "@/types/api";
+import { getProjects } from "@/lib/api/project";
 
 export function DashboardPage() {
   const { data, isLoading, error } = useDashboard();
+  const [projects, setProjects] = useState<ProjectListItem[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
 
   const weeklyCommits = data?.weeklyCommits ?? [];
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        setIsLoadingProjects(true);
+        const allProjects = await getProjects();
+        const sortedProjects = [...allProjects].sort((a, b) => {
+          if (!a.lastCommitAt) return 1;
+          if (!b.lastCommitAt) return -1;
+          return new Date(b.lastCommitAt).getTime() - new Date(a.lastCommitAt).getTime();
+        });
+        setProjects(sortedProjects.slice(0, 5));
+      } catch (err) {
+        console.error("프로젝트 목록을 불러오는데 실패했습니다:", err);
+        setProjects([]);
+      } finally {
+        setIsLoadingProjects(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
 
   const {
     maxCommits,
@@ -141,7 +166,7 @@ export function DashboardPage() {
         <p className="mt-1 text-sm text-gray-500">당신의 프로젝트 활동을 한눈에 확인하세요.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-stretch">
         <div className="lg:col-span-2">
           <ActivityOverview
             weeklyCommits={weeklyCommits}
@@ -164,7 +189,7 @@ export function DashboardPage() {
       </div>
 
       <RecentProjects
-        projects={data.recentProjects}
+        projects={projects}
         getTimeLabel={getTimeLabel}
         getDday={getDday}
         getDdayLabel={getDdayLabel}

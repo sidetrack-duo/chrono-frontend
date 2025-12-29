@@ -8,7 +8,6 @@ import {
   mockWeeklyCommits,
   mockCommitSummary,
   mockCommitHistory,
-  mockCommits,
 } from "./data";
 import {
   User,
@@ -26,7 +25,6 @@ import {
   WeeklyCommitCount,
   CommitSummary,
   CommitHistoryCount,
-  Commit,
 } from "@/types/api";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -135,10 +133,6 @@ export const mockApi = {
     getCommitHistory: async (_projectId: number): Promise<CommitHistoryCount[]> => {
       await delay(300);
       return mockCommitHistory;
-    },
-    getAllCommits: async (_projectId: number): Promise<Commit[]> => {
-      await delay(400);
-      return mockCommits;
     },
   },
 };

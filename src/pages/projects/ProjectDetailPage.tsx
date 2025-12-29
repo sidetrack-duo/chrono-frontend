@@ -16,7 +16,6 @@ import { getCommitIntensity } from "@/utils/dashboard";
 
 function CommitHistoryChart({ history }: { history: CommitHistoryCount[] }) {
   const validHistory = history.filter((h) => h.date != null);
-  const maxCount = Math.max(...validHistory.map((h) => h.count), 1);
   const sortedHistory = [...validHistory].sort((a, b) => 
     new Date(a.date).getTime() - new Date(b.date).getTime()
   );
@@ -28,7 +27,30 @@ function CommitHistoryChart({ history }: { history: CommitHistoryCount[] }) {
     return `${month}/${day}`;
   };
 
-  const displayHistory = sortedHistory.slice(-14);
+  const generateLast14Days = (): CommitHistoryCount[] => {
+    const days: CommitHistoryCount[] = [];
+    const today = new Date();
+    for (let i = 13; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      const existing = sortedHistory.find((h) => {
+        const backendDate = h.date?.split('T')[0] || h.date;
+        return backendDate === dateStr;
+      });
+      days.push({
+        date: dateStr,
+        count: existing?.count ?? 0,
+      });
+    }
+    return days;
+  };
+
+  const displayHistory = generateLast14Days();
+  const maxCount = Math.max(...displayHistory.map((h) => h.count), 1);
 
   return (
     <div className="flex items-end justify-between gap-0">
@@ -153,9 +175,9 @@ export function ProjectDetailPage() {
       setIsSyncing(true);
       const count = await syncCommits(Number(id));
       showToast(`${count}개의 커밋이 동기화되었습니다.`, "success");
-      await loadProject();
-      await loadCommitSummary();
-      await loadCommitHistory();
+                  await loadProject();
+                  await loadCommitSummary();
+                  await loadCommitHistory();
     } catch (err) {
       if (isApiError(err)) {
         showToast(err.message || "커밋 동기화에 실패했습니다.", "error");
@@ -277,33 +299,31 @@ export function ProjectDetailPage() {
   const lastCommitAt = project?.lastCommitAt || project?.github?.lastCommitAt;
   const daysAgo = lastCommitAt ? getDaysSinceLastCommit(lastCommitAt) : null;
 
-  const displayHistory = useMemo(() => {
-    if (commitHistory.length === 0) return [];
-    const sortedHistory = [...commitHistory].sort((a, b) => 
-      new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-    return sortedHistory.slice(-14);
-  }, [commitHistory]);
-
-  const totalCommits = useMemo(() => 
-    displayHistory.reduce((sum, h) => sum + h.count, 0), 
-    [displayHistory]
-  );
-
   const dateRange = useMemo(() => {
-    if (displayHistory.length === 0) return "";
-    const firstDate = new Date(displayHistory[0].date);
-    const lastDate = new Date(displayHistory[displayHistory.length - 1].date);
+    const today = new Date();
+    const firstDate = new Date(today);
+    firstDate.setDate(today.getDate() - 13);
+    const lastDate = new Date(today);
     const formatDate = (date: Date) => {
       return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
     };
     return `${formatDate(firstDate)} ~ ${formatDate(lastDate)}`;
-  }, [displayHistory]);
+  }, []);
+
+  const totalCommits = useMemo(() => {
+    const validHistory = commitHistory.filter((h) => h.date != null);
+    const sortedHistory = [...validHistory].sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    const last14Days = sortedHistory.slice(-14);
+    return last14Days.reduce((sum, h) => sum + h.count, 0);
+  }, [commitHistory]);
 
   const streakDays = useMemo(() => {
     if (commitHistory.length === 0) return 0;
     
-    const sortedHistory = [...commitHistory].sort((a, b) => 
+    const validHistory = commitHistory.filter((h) => h.date != null);
+    const sortedHistory = [...validHistory].sort((a, b) => 
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
     
@@ -346,15 +366,20 @@ export function ProjectDetailPage() {
   }, [commitHistory]);
 
   const mostActiveDayName = useMemo(() => {
-    if (displayHistory.length === 0) return null;
-    const maxCount = Math.max(...displayHistory.map((h) => h.count), 0);
+    const validHistory = commitHistory.filter((h) => h.date != null);
+    if (validHistory.length === 0) return null;
+    const sortedHistory = [...validHistory].sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    const last14Days = sortedHistory.slice(-14);
+    const maxCount = Math.max(...last14Days.map((h) => h.count), 0);
     if (maxCount === 0) return null;
-    const mostActiveDay = displayHistory.find((h) => h.count === maxCount);
+    const mostActiveDay = last14Days.find((h) => h.count === maxCount);
     if (!mostActiveDay) return null;
     const date = new Date(mostActiveDay.date);
     const dayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
     return dayNames[date.getDay()];
-  }, [displayHistory]);
+  }, [commitHistory]);
 
   const techStackArray = project?.techStack
     ? project.techStack.split(",").map((s) => s.trim())
@@ -633,57 +658,51 @@ export function ProjectDetailPage() {
                   <span className="text-base font-semibold text-gray-900">{getTimeLabel(daysAgo)}</span>
                 </div>
 
-                {commitHistory.length > 0 && (
-                  <div className="pt-5">
-                    <div className="mb-8">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h2 className="text-lg font-semibold text-gray-900">
-                            최근 14일간 {totalCommits}번 커밋했어요
-                          </h2>
-                          {dateRange && (
-                            <p className="mt-1 text-sm text-gray-500">
-                              {dateRange}
-                            </p>
-                          )}
-                        </div>
-                        <button
-                          onClick={handleSyncCommits}
-                          disabled={isSyncing}
-                          className="text-gray-400 hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                          title="커밋 동기화"
-                        >
-                          <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
-                        </button>
+                <div className="pt-5">
+                  <div className="mb-8">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900">
+                          최근 14일간 {totalCommits}번 커밋했어요
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-500">
+                          {dateRange}
+                        </p>
                       </div>
+                      <button
+                        onClick={handleSyncCommits}
+                        disabled={isSyncing}
+                        className="text-gray-400 hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        title="커밋 동기화"
+                      >
+                        <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
+                      </button>
                     </div>
+                  </div>
 
-                    <div className="space-y-4">
-                      {isLoadingHistory ? (
-                        <div className="flex items-center justify-center py-8">
-                          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                        </div>
-                      ) : (
-                        <CommitHistoryChart history={commitHistory} />
-                      )}
+                  <div className="space-y-4">
+                    {isLoadingHistory ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      </div>
+                    ) : (
+                      <CommitHistoryChart history={commitHistory} />
+                    )}
 
-                      <div className="flex flex-wrap items-center justify-center gap-4 border-t border-gray-100 pt-4">
-                        {streakDays > 0 && (
-                          <div className="flex items-center gap-2 rounded-lg bg-accent-50 px-3 py-1.5">
-                            <GitCommitHorizontal className="h-4 w-4 text-accent" />
-                            <span className="text-xs font-medium text-accent">{streakDays}일 연속</span>
-                          </div>
-                        )}
-                        {mostActiveDayName && (
-                          <div className="flex items-center gap-2">
-                            <Sparkle className="h-4 w-4 text-accent" />
-                            <span className="text-xs font-medium text-gray-500">{mostActiveDayName}에 가장 활발했어요</span>
-                          </div>
-                        )}
+                    <div className="flex flex-wrap items-center justify-center gap-4 border-t border-gray-100 pt-4">
+                      <div className="flex items-center gap-2 rounded-lg bg-accent-50 px-3 py-1.5">
+                        <GitCommitHorizontal className="h-4 w-4 text-accent" />
+                        <span className="text-xs font-medium text-accent">{streakDays}일 연속</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Sparkle className="h-4 w-4 text-accent" />
+                        <span className="text-xs font-medium text-gray-500">
+                          {mostActiveDayName ? `${mostActiveDayName}에 가장 활발했어요` : "최근 활동이 없어요"}
+                        </span>
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
 
               </div>
             )}

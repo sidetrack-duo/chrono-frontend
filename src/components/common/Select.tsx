@@ -61,7 +61,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         </div>
         {error && <p className="text-xs text-accent-dark">{error}</p>}
         {!error && helperText && (
-          <p className="text-xs text-gray-500">{helperText}</p>
+          <div className="text-xs text-gray-500">{helperText}</div>
         )}
       </div>
     );

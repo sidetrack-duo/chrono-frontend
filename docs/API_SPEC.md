@@ -5,7 +5,7 @@
 버전: v1.2
 
 작성일: 2025-12-02  
-수정일: 2025-12-25
+수정일: 2025-12-29
 
 기반 문서: PRD.md, FRS.md
 
@@ -1077,41 +1077,6 @@ Query Parameter: `username` (String)
 ```
 
 **비고:** 날짜별 커밋 수 집계 반환
-
----
-
-## 🔹 8.7 커밋 전체 조회
-
-### `GET /api/projects/{projectId}/commits`
-
-**인증:** 필요
-
-### Response 200
-
-```json
-{
-  "success": true,
-  "message": "SUCCESS",
-  "data": [
-    {
-      "sha": "f40e9c6f84e3191ab6e902a14b6fd7705ed3bc8a",
-      "message": "fix:refresh설정 수정",
-      "authorName": "simuneu",
-      "authorEmail": "worksimu@gmail.com",
-      "commitDate": "2025-12-17T13:27:11"
-    },
-    {
-      "sha": "a1740bd609d32af1868e3264d5b2470681ce08fd",
-      "message": "fix:요일별 소비 패턴 계산 기준 통일 및 undefined 오류 수정",
-      "authorName": "simuneu",
-      "authorEmail": "worksimu@gmail.com",
-      "commitDate": "2025-12-16T15:50:07"
-    }
-  ]
-}
-```
-
-**비고:** 최근 30개 커밋만 반환 (필요 시 전체 조회로 확장 가능). 프로젝트 상세 페이지에서 최근 커밋 목록 표시에 활용 가능
 
 ---
 

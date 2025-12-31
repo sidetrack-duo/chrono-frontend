@@ -18,9 +18,9 @@ export function ToastContainer() {
 function ToastItem({ toast, onClose }: { toast: ToastType; onClose: () => void }) {
 
   const variants = {
-    success: "bg-green-50 text-green-700 border-green-200",
-    error: "bg-red-50 text-red-700 border-red-200",
-    info: "bg-blue-50 text-blue-700 border-blue-200",
+    success: "bg-primary text-white",
+    error: "bg-accent text-white",
+    info: "bg-white text-gray-700 border-gray-300",
   };
 
   const icons = {

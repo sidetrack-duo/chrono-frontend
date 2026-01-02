@@ -190,6 +190,7 @@ export function DashboardPage() {
 
       <RecentProjects
         projects={projects}
+        isLoading={isLoadingProjects}
         getTimeLabel={getTimeLabel}
         getDday={getDday}
         getDdayLabel={getDdayLabel}

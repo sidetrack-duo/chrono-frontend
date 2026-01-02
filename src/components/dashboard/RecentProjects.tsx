@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { CircleAlert, Flame } from "lucide-react";
 import { ProjectListItem, ProjectStatus } from "@/types/api";
 import { Badge } from "@/components/common/Badge";
+import { Skeleton } from "@/components/common/Skeleton";
 import { getDaysSinceLastCommit } from "@/utils/dashboard";
 
 interface RecentProjectsProps {
   projects: ProjectListItem[];
+  isLoading: boolean;
   getTimeLabel: (daysAgo: number | null) => string;
   getDday: (targetDate?: string) => number | null;
   getDdayLabel: (dday: number | null) => { label: string; isUrgent?: boolean; isOverdue?: boolean } | null;
@@ -16,6 +18,7 @@ interface RecentProjectsProps {
 
 export function RecentProjects({
   projects,
+  isLoading,
   getTimeLabel,
   getDday,
   getDdayLabel,
@@ -33,7 +36,29 @@ export function RecentProjects({
           + 새 프로젝트
         </Link>
       </div>
-      {projects.length === 0 ? (
+
+      {isLoading ? (
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="grid grid-cols-[24px_1fr] gap-x-4 items-stretch">
+              <div className="relative flex justify-center">
+                <div className="absolute inset-0 z-10 grid place-items-center">
+                  <div className="h-2 w-2 rounded-full bg-gray-200" />
+                </div>
+              </div>
+
+              <div className="min-h-[80px] rounded-lg border border-gray-200 bg-white p-4">
+                <Skeleton width="w-52" height="h-5" />
+                <div className="mt-2 flex items-center gap-2">
+                  <Skeleton width="w-16" height="h-4" />
+                  <Skeleton width="w-20" height="h-4" />
+                  <Skeleton width="w-14" height="h-4" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : projects.length === 0 ? (
         <div className="py-12 text-center">
           <p className="text-sm text-gray-500">최근 프로젝트가 없습니다</p>
         </div>

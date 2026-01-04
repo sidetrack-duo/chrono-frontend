@@ -70,10 +70,14 @@ export function LandingPage() {
               </Link>
               <Link
                 to="/login"
-                className="inline-flex h-13 items-center justify-center rounded-xl border border-gray-200 bg-white px-8 text-base font-medium text-gray-700 transition-all hover:bg-gray-50 hover:text-gray-900"
+                className="inline-flex h-13 flex-col items-center justify-center rounded-xl border border-gray-200 bg-white px-8 text-base font-medium text-gray-700 transition-all hover:bg-gray-50 hover:text-gray-900"
               >
-                로그인
+                <span>로그인</span>
+                <span className="text-xs font-light text-gray-500">
+                  또는 데모계정으로 둘러보기
+                </span>
               </Link>
+
             </div>
           </div>
         </div>

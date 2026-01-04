@@ -376,7 +376,7 @@ export function SignupPage() {
             <div className="mt-6 text-center">
               <Link
                 to="/login"
-                className="text-sm font-medium text-primary hover:text-primary-dark hover:underline"
+                className="text-sm font-medium text-primary hover:text-primary-dark"
               >
                 로그인하기
               </Link>

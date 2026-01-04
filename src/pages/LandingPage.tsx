@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Github, BarChart3, Layers, ArrowRight } from "lucide-react";
+import { Github, BarChart3, FolderTree, ArrowRight } from "lucide-react";
 
 export function LandingPage() {
   return (
@@ -47,33 +47,37 @@ export function LandingPage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
               </span>
-              사이드 프로젝트 관리를 위한 최고의 도구
+              사이드 프로젝트를 한곳에서 관리하세요
             </div>
             
             <h1 className="mb-6 text-4xl font-bold leading-tight tracking-tight text-gray-900 md:text-6xl lg:leading-tight">
-              문서가 아닌 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dark">코드 활동</span>으로<br />
-              프로젝트를 증명하세요.
+              <span className="text-primary">개발</span> 활동을 중심으로<br />
+              <span className="text-primary">프로젝트</span> 진행 상황을<br />
+              정리해 보여줘요
             </h1>
-            
+                      
             <p className="mb-10 text-lg text-gray-600 md:text-xl">
-              GitHub 커밋 데이터를 기반으로 당신의 개발 활동을 시각화합니다.<br className="hidden md:block" />
-              chrono와 함께 사이드 프로젝트의 성장을 기록해보세요.
+              GitHub 커밋 데이터를 기반으로 개발 활동을 정리합니다. <br className="hidden md:block" />
+              프로젝트의 진행과 성장을 함께 기록해보세요.
             </p>
             
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start md:items-start">
               <Link
-                to="/login"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gray-900 px-8 text-base font-medium text-white transition-all hover:bg-gray-800 hover:shadow-lg"
+                to="/signup"
+                className="inline-flex h-13 items-center justify-center rounded-xl bg-gray-900 px-8 text-base font-medium text-white transition-all hover:bg-gray-800 hover:shadow-lg"
               >
-                <Github className="h-5 w-5" />
-                GitHub로 시작하기
+                chrono. 계정 만들기
               </Link>
               <Link
-                to="/about"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-8 text-base font-medium text-gray-700 transition-all hover:bg-gray-50 hover:text-gray-900"
+                to="/login"
+                className="inline-flex h-13 flex-col items-center justify-center rounded-xl border border-gray-200 bg-white px-8 text-base font-medium text-gray-700 transition-all hover:bg-gray-50 hover:text-gray-900"
               >
-                더 알아보기
+                <span>로그인</span>
+                <span className="text-xs font-light text-gray-500">
+                  또는 데모계정으로 둘러보기
+                </span>
               </Link>
+
             </div>
           </div>
         </div>
@@ -84,18 +88,18 @@ export function LandingPage() {
           <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
             <FeatureCard 
               icon={Github}
-              title="GitHub 직접 연동"
-              description="번거로운 입력 없이, GitHub 리포지토리만 선택하면 프로젝트 생성 끝. 커밋 데이터를 자동으로 불러옵니다."
+              title="GitHub 연동"
+              description="번거로운 입력 빼고, GitHub 리포지토리만 선택하면 프로젝트 생성 끝! 커밋 데이터를 자동으로 불러옵니다."
             />
             <FeatureCard 
               icon={BarChart3}
               title="주간 활동 시각화"
-              description="이번 주에 얼마나 코딩했는지 그래프로 확인하세요. 단순한 잔디보다 더 명확한 인사이트를 제공합니다."
+              description="이번 주 얼마나 코딩했지? 그래프로 확인하세요. 프로젝트 단위로 흐름을 파악할 수 있습니다."
             />
             <FeatureCard 
-              icon={Layers}
-              title="프로젝트별 관리"
-              description="여러 개의 사이드 프로젝트를 한곳에서 관리하세요. 진행 상황과 기술 스택을 한눈에 파악할 수 있습니다."
+              icon={FolderTree}
+              title="프로젝트 정리"
+              description="여러 개의 사이드 프로젝트를 한곳에서 관리하세요. 프로젝트별 기본 정보와 진행 상황을 한눈에 파악할 수 있습니다."
             />
           </div>
         </div>
@@ -107,7 +111,7 @@ export function LandingPage() {
             지금 바로 시작해보세요
           </h2>
           <p className="mb-8 text-gray-600">
-            개발자의 성장은 기록에서 시작됩니다. chrono가 함께합니다.
+            chrono.와 함께 사이드 프로젝트를 부담 없이 관리해보세요.
           </p>
           <Link
             to="/signup"

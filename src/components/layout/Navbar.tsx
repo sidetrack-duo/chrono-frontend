@@ -45,12 +45,12 @@ export function Navbar() {
           <div className="col-start-3 flex items-center justify-end gap-3 md:gap-4">
             <Link
               to="/login"
-              className="text-sm font-medium text-gray-700 transition-colors hover:text-primary"
+              className="shrink-0 whitespace-nowrap text-sm font-medium text-gray-700 transition-colors hover:text-primary"
             >
               로그인
             </Link>
-            <Link to="/signup">
-              <Button size="sm" className="text-sm font-medium px-3 md:px-4">
+            <Link to="/signup" className="shrink-0">
+              <Button size="sm" className="whitespace-nowrap text-sm font-medium px-3 md:px-4">
                 회원가입
               </Button>
             </Link>

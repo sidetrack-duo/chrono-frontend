@@ -5,10 +5,14 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   label?: string;
   error?: string;
   helperText?: string;
+  hideRequiredMark?: boolean;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, helperText, id, required, ...props }, ref) => {
+  (
+    { className, label, error, helperText, id, required, hideRequiredMark, ...props },
+    ref
+  ) => {
     const inputId = id || React.useId();
 
     return (
@@ -19,7 +23,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className="block text-sm font-medium text-gray-700"
           >
             {label}
-            {required && <span className="text-primary ml-1">*</span>}
+            {required && !hideRequiredMark && (
+              <span className="text-primary ml-1">*</span>
+            )}
           </label>
         )}
         <div className="relative">
@@ -48,4 +54,3 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 
 Input.displayName = "Input";
-

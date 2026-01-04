@@ -8,6 +8,9 @@ import { useAuthStore } from "@/stores/authStore";
 import { isApiError } from "@/lib/api/client";
 import { useToastStore } from "@/stores/toastStore";
 
+const DEMO_EMAIL = import.meta.env.VITE_DEMO_EMAIL ?? "";
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD ?? "";
+
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,6 +40,12 @@ export function LoginPage() {
     }
   };
 
+  const fillDemoAccount = () => {
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PASSWORD);
+    showToast("데모계정이 입력됐어요.", "success");
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-zinc-100">
       <div className="flex flex-1 items-center justify-center p-4">
@@ -63,6 +72,7 @@ export function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                hideRequiredMark
                 autoComplete="email"
               />
               <Input
@@ -73,6 +83,7 @@ export function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                hideRequiredMark
                 autoComplete="current-password"
               />
             </div>
@@ -110,10 +121,18 @@ export function LoginPage() {
             <div className="mt-6 text-center">
               <Link
                 to="/signup"
-                className="text-sm font-medium text-primary hover:text-primary-dark hover:underline"
+                className="block text-sm font-medium text-primary hover:text-primary-dark"
               >
                 회원가입하고 시작하기
               </Link>
+
+              <button
+                type="button"
+                onClick={fillDemoAccount}
+                className="mt-4 text-sm font-medium text-gray-300 hover:text-primary cursor-pointer"
+              >
+                데모계정으로 둘러보기
+              </button>
             </div>
           </div>
         </Card>

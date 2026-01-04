@@ -4,9 +4,16 @@ import { Input } from "@/components/common/Input";
 import { useToastStore } from "@/stores/toastStore";
 import { updatePassword } from "@/lib/api/user";
 import { isApiError } from "@/lib/api/client";
+import { useAuthStore } from "@/stores/authStore";
+import { AlertTriangle } from "lucide-react";
+
+const DEMO_EMAIL = import.meta.env.VITE_DEMO_EMAIL ?? "";
 
 export function PasswordSection() {
   const showToast = useToastStore((state) => state.showToast);
+  const userEmail = useAuthStore((state) => state.user?.email);
+  const isDemoUser = !!DEMO_EMAIL && userEmail === DEMO_EMAIL;
+
   const [isLoading, setIsLoading] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -31,6 +38,12 @@ export function PasswordSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isDemoUser) {
+      showToast("데모 계정에서는 비밀번호를 변경할 수 없습니다.", "error");
+      return;
+    }
+
     setPasswordMessage(null);
 
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -48,7 +61,6 @@ export function PasswordSection() {
       setPasswordMessage("비밀번호가 일치하지 않습니다.");
       return;
     }
-    setPasswordMessage(null);
 
     setIsLoading(true);
 
@@ -102,7 +114,7 @@ export function PasswordSection() {
             onChange={(e) => {
               const value = e.target.value;
               setNewPassword(value);
-              
+
               const passwordValidation = validatePassword(value);
               if (value && !passwordValidation.valid) {
                 setPasswordMessage(passwordValidation.message || "비밀번호 조건을 만족하지 않습니다.");
@@ -124,7 +136,7 @@ export function PasswordSection() {
             onChange={(e) => {
               const value = e.target.value;
               setConfirmPassword(value);
-              
+
               if (value && newPassword) {
                 if (value !== newPassword) {
                   setPasswordMessage("비밀번호가 일치하지 않습니다.");
@@ -148,7 +160,13 @@ export function PasswordSection() {
       <Button type="submit" isLoading={isLoading} className="w-full md:w-auto">
         비밀번호 변경
       </Button>
+
+      {isDemoUser && (
+        <p className="flex items-start gap-1 text-sm text-accent-dark">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span><strong>데모 계정에서는 보안상 비밀번호 변경이 제한됩니다.</strong></span>
+        </p>
+      )}
     </form>
   );
 }
-

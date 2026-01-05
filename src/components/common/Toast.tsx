@@ -33,7 +33,7 @@ function ToastItem({ toast, onClose }: { toast: ToastType; onClose: () => void }
 
   return (
     <div
-      className={`flex items-center gap-2 rounded-lg border px-4 py-3 text-sm shadow-lg min-w-[300px] max-w-[400px] ${variants[toast.type]}`}
+      className={`flex items-center gap-2 rounded-lg px-4 py-3 text-sm shadow-lg min-w-[300px] max-w-[400px] ${variants[toast.type]}`}
     >
       <Icon className="h-5 w-5 shrink-0" />
       <p className="flex-1">{toast.message}</p>

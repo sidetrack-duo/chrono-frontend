@@ -23,7 +23,7 @@ export function AccountDeletionSection() {
 
   const handleDeleteAccountClick = () => {
     if (isDemoUser) {
-      showToast("데모 계정에서는 회원 탈퇴를 할 수 없습니다.", "error");
+      showToast("데모계정에서는 회원 탈퇴를 할 수 없습니다.", "error");
       return;
     }
     setIsDeleteModalOpen(true);
@@ -31,7 +31,7 @@ export function AccountDeletionSection() {
 
   const handleDeleteAccountConfirm = async () => {
     if (isDemoUser) {
-      showToast("데모 계정에서는 회원 탈퇴를 할 수 없습니다.", "error");
+      showToast("데모계정에서는 회원 탈퇴를 할 수 없습니다.", "error");
       setIsDeleteModalOpen(false);
       return;
     }
@@ -78,9 +78,9 @@ export function AccountDeletionSection() {
       </div>
 
       {isDemoUser && (
-        <p className="mt-0.5 flex items-start gap-1 text-sm text-accent-dark">
+        <p className="mt-5 md:mt-0.5 flex items-start gap-1 text-sm text-accent-dark">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-          <span><strong>데모 계정에서는 보안상 회원 탈퇴가 제한됩니다.</strong></span>
+          <span><strong>데모계정에서는 보안상 회원 탈퇴가 제한됩니다.</strong></span>
         </p>
       )}
 

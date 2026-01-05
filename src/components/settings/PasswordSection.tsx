@@ -40,7 +40,7 @@ export function PasswordSection() {
     e.preventDefault();
 
     if (isDemoUser) {
-      showToast("데모 계정에서는 비밀번호를 변경할 수 없습니다.", "error");
+      showToast("데모계정에서는 비밀번호를 변경할 수 없습니다.", "error");
       return;
     }
 
@@ -164,7 +164,7 @@ export function PasswordSection() {
       {isDemoUser && (
         <p className="flex items-start gap-1 text-sm text-accent-dark">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-          <span><strong>데모 계정에서는 보안상 비밀번호 변경이 제한됩니다.</strong></span>
+          <span><strong>데모계정에서는 보안상 비밀번호 변경이 제한됩니다.</strong></span>
         </p>
       )}
     </form>

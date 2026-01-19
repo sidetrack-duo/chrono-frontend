@@ -61,7 +61,7 @@ GitHub 리포지토리를 선택해 프로젝트를 생성합니다. 리포지�
 
 여러 개의 사이드 프로젝트를 한곳에서 관리합니다. 프로젝트별 기본 정보와 진행 상태를 정리해, 진행하는 작업을 한눈에 파악할 수 있습니다.
 
-<img src="https://github.com/user-attachments/assets/6afa2bc0-3aa9-4174-9dd2-f1a40984aa35" width="700">
+<img src="https://github.com/user-attachments/assets/442c0a7d-d650-485a-bd13-9a30a9bdf0b7" width="700">
 <br>
 
 ### 3. 커밋 기반 프로젝트 기록과 활동 시각화

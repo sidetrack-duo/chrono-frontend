@@ -54,7 +54,7 @@ chrono.(크로노)는 GitHub 개발 활동을 중심으로, 사이드 프로젝�
 
 GitHub 리포지토리를 선택해 프로젝트를 생성합니다. 리포지토리 정보와 커밋 데이터를 자동으로 불러와, 번거로운 설정 없이 바로 시작할 수 있습니다.
 
-<img src="https://github.com/user-attachments/assets/19eaa654-23d5-4849-9540-2c3ce3a2f745" width="700">
+<img src="https://github.com/user-attachments/assets/99c286c7-b4d4-4b99-a2d0-dcce2637e9e4" width="700">
 <br>
 
 ### 2. 프로젝트 한곳에서 관리하기

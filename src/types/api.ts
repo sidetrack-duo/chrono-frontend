@@ -194,6 +194,11 @@ export interface WeeklyCommit {
   count: number;
 }
 
+export interface DailyCommitCount {
+  date: string; // YYYY-MM-DD
+  count: number;
+}
+
 export interface WeekInfo {
   startDate: string;
   endDate: string;
@@ -231,4 +236,3 @@ export interface Commit {
   authorEmail: string;
   commitDate: string;
 }
-

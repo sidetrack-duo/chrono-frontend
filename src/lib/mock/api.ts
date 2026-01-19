@@ -5,6 +5,7 @@ import {
   mockProjectsDetail,
   mockProject,
   mockDashboard,
+  mockRecent7DaysCommits,
   mockWeeklyCommits,
   mockCommitSummary,
   mockCommitHistory,
@@ -25,6 +26,7 @@ import {
   WeeklyCommitCount,
   CommitSummary,
   CommitHistoryCount,
+  DailyCommitCount,
 } from "@/types/api";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -119,6 +121,10 @@ export const mockApi = {
       await delay(500);
       return mockDashboard;
     },
+    getRecent7DaysCommits: async (): Promise<DailyCommitCount[]> => {
+      await delay(300);
+      return mockRecent7DaysCommits;
+    },
   },
 
   commit: {
@@ -136,4 +142,3 @@ export const mockApi = {
     },
   },
 };
-

@@ -1,18 +1,23 @@
 import { useState, useEffect } from "react";
-import { getDashboard } from "@/lib/api/dashboard";
-import { DashboardResponse } from "@/types/api";
+import { getDashboard, getRecent7DaysCommits } from "@/lib/api/dashboard";
+import { DailyCommitCount, DashboardResponse } from "@/types/api";
 import { isApiError } from "@/lib/api/client";
 
 export function useDashboard() {
   const [data, setData] = useState<DashboardResponse | null>(null);
+  const [recentDailyCommits, setRecentDailyCommits] = useState<DailyCommitCount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const dashboardData = await getDashboard();
+        const [dashboardData, recent7Days] = await Promise.all([
+          getDashboard(),
+          getRecent7DaysCommits(),
+        ]);
         setData(dashboardData);
+        setRecentDailyCommits(recent7Days);
       } catch (err) {
         if (isApiError(err)) {
           setError(err.message);
@@ -27,6 +32,6 @@ export function useDashboard() {
     loadDashboard();
   }, []);
 
-  return { data, isLoading, error };
+  return { data, recentDailyCommits, isLoading, error };
 }
 

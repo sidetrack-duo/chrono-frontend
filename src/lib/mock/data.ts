@@ -453,3 +453,28 @@ export const mockDashboard: DashboardResponse = {
   },
   recentProjects: mockProjects.slice(0, 3),
 };
+
+export const mockRecent7DaysCommits = Array.from({ length: 7 }, (_, i) => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() - (6 - i));
+  const dayOfWeek = date.getDay();
+
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const dateStr = `${yyyy}-${mm}-${dd}`;
+
+  // 주말 적게 주중 많게
+  let count = 0;
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    count = Math.floor(Math.random() * 3);
+  } else {
+    count = Math.floor(Math.random() * 8);
+  }
+
+  return {
+    date: dateStr,
+    count,
+  };
+});

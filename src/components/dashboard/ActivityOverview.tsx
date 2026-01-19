@@ -2,7 +2,7 @@ import { GitCommitHorizontal, Sparkle, PlayCircle, CircleCheckBig, FolderTree } 
 import { getCommitIntensity } from "@/utils/dashboard";
 
 interface ActivityOverviewProps {
-  weeklyCommits: { dayOfWeek: number; count?: number }[];
+  dailyCommits: { date: string; count?: number }[];
   weekInfo: { startDate: string; endDate: string };
   streakDays: number;
   totalWeekCommits: number;
@@ -14,16 +14,28 @@ interface ActivityOverviewProps {
 
 const dayLabels = ["월", "화", "수", "목", "금", "토", "일"];
 
+const parseLocalDate = (dateString: string) => {
+  // "YYYY-MM-DD" 타임존 이슈 방지: 로컬 자정으로 고정
+  return new Date(`${dateString}T00:00:00`);
+};
+
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
+  const date = parseLocalDate(dateString);
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
   return `${year}년 ${month}월 ${day}일`;
 };
 
+const formatShortDate = (dateString: string) => {
+  const date = parseLocalDate(dateString);
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return `${month}/${day}`;
+};
+
 export function ActivityOverview({
-  weeklyCommits,
+  dailyCommits,
   weekInfo,
   streakDays,
   totalWeekCommits,
@@ -82,16 +94,15 @@ export function ActivityOverview({
 
         <div className="space-y-4">
           <div className="flex items-end justify-between gap-2">
-            {[2, 3, 4, 5, 6, 7, 1].map((dayOfWeek) => {
-              const commit = weeklyCommits.find((c) => c.dayOfWeek === dayOfWeek);
+            {dailyCommits.map((commit) => {
               const count = commit?.count ?? 0;
-              // MySQL DAYOFWEEK(1=일, 2=월, ...) → dayLabels 인덱스(0=월, 6=일)
-              const dayIndex = (dayOfWeek - 2 + 7) % 7;
+              const date = parseLocalDate(commit.date);
+              const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1;
               const height = maxCommits > 0 ? count / maxCommits * 100 : 0;
               const intensity = getCommitIntensity(count);
               return (
                 <div
-                  key={dayOfWeek}
+                  key={commit.date}
                   className="group flex flex-1 flex-col items-center gap-2"
                 >
                   <div className="relative flex w-full items-end" style={{ height: "80px" }}>
@@ -111,10 +122,10 @@ export function ActivityOverview({
                         height: `${Math.max(height, count > 0 ? 12 : 4)}%`,
                         minHeight: count > 0 ? "20px" : "4px",
                       }}
-                      title={`${dayLabels[dayIndex]}: ${count} commits`}
+                      title={`${formatShortDate(commit.date)} (${dayLabels[dayIndex]}): ${count} commits`}
                     ></div>
                   </div>
-                  <span className="text-xs text-gray-500">{dayLabels[dayIndex]}</span>
+                  <span className="text-xs text-gray-500">{formatShortDate(commit.date)}</span>
                 </div>
               );
             })}

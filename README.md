@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/59b45b32-597a-4184-b496-ce4c90bd3c0b" width="420" alt="Chrono"/>
+  <img src="https://github.com/user-attachments/assets/7fea2a8d-7d6a-4b43-9e03-fc71aad3f249" width="400" alt="Chrono"/>
 </p>
 
 > **GitHub 개발 활동으로 사이드 프로젝트의 진행 흐름을 기록하는 서비스**
@@ -50,66 +50,38 @@ chrono.(크로노)는 GitHub 개발 활동을 중심으로, 사이드 프로젝�
 
 ## ✨ 주요 기능
 
-### 1. GitHub 연동 기반 프로젝트 생성
+### 1. GitHub 리포지토리로 프로젝트 시작하기
 
-GitHub 리포지토리를 선택해 프로젝트를 생성합니다.
-별도의 입력 없이 리포지토리 정보와 커밋 데이터를 불러와 프로젝트를 시작할 수 있습니다.
+GitHub 리포지토리를 선택해 프로젝트를 생성합니다. 리포지토리 정보와 커밋 데이터를 자동으로 불러와, 번거로운 설정 없이 바로 시작할 수 있습니다.
 
-<!-- TODO: 주요 기능 이미지 - GitHub 연동 / 프로젝트 생성 화면 -->
-
-<!-- IMAGE: feature-github-integration -->
-
+<img src="https://github.com/user-attachments/assets/19eaa654-23d5-4849-9540-2c3ce3a2f745" width="700">
 <br>
 
-### 2. 프로젝트 관리
+### 2. 프로젝트 한곳에서 관리하기
 
-여러 개의 사이드 프로젝트를 한곳에서 관리할 수 있습니다.
-프로젝트별 기본 정보와 진행 상태를 정리해 현재 어떤 작업을 하고 있는지 쉽게 파악할 수 있습니다.
+여러 개의 사이드 프로젝트를 한곳에서 관리합니다. 프로젝트별 기본 정보와 진행 상태를 정리해, 진행하는 작업을 한눈에 파악할 수 있습니다.
 
-<!-- TODO: 주요 기능 이미지 - 프로젝트 목록 / 상태 관리 화면 -->
-
-<!-- IMAGE: feature-project-management -->
-
+<img src="https://github.com/user-attachments/assets/6afa2bc0-3aa9-4174-9dd2-f1a40984aa35" width="700">
 <br>
 
-### 3. 커밋 기반 진행 흐름 기록
+### 3. 커밋 기반 프로젝트 기록과 활동 시각화
 
-GitHub 커밋 데이터를 기준으로 프로젝트의 진행 흐름을 기록합니다.
-자동·수동 동기화를 통해 최신 개발 활동을 반영할 수 있습니다.
+GitHub 커밋 데이터를 기준으로 최신 개발 활동을 반영합니다. 프로젝트별로 최근 14일간의 커밋 활동을 그래프로 확인할 수 있습니다.
 
-<!-- TODO: 주요 기능 이미지 - 커밋 히스토리 / 진행 흐름 -->
-
-<!-- IMAGE: feature-commit-history -->
-
+<img src="https://github.com/user-attachments/assets/4a359c34-1aa0-4442-a964-70004e4d219e" width="700">
 <br>
 
-### 4. 주간 활동 시각화
+### 4. 대시보드로 전체 현황 확인
 
-프로젝트별 주간 커밋 활동을 그래프로 확인할 수 있습니다.
-이번 주 작업량과 개발 흐름을 직관적으로 파악할 수 있습니다.
+전체 프로젝트 상태와 최근 활동을 대시보드에서 확인할 수 있습니다. 주간 커밋 내역과 전반적인 개발 흐름을 한눈에 볼 수 있습니다.
 
-<!-- TODO: 주요 기능 이미지 - 주간 커밋 그래프 -->
-
-<!-- IMAGE: feature-weekly-activity -->
-
-<br>
-
-### 5. 대시보드 요약
-
-전체 프로젝트 현황과 최근 활동을 한 화면에서 확인할 수 있습니다.
-진행 중인 프로젝트, 완료된 프로젝트, 최근 개발 흐름을 빠르게 파악할 수 있습니다.
-
-<!-- TODO: 주요 기능 이미지 - 대시보드 메인 화면 -->
-
-<!-- IMAGE: feature-dashboard -->
-
-<br>
+<img src="https://github.com/user-attachments/assets/18e4a4a5-153f-4198-9fda-4faa86af823b" width="700">
+<br><br>
 
 ## 🔍 세부 기능
 
 <details>
   <summary><strong>인증 · 사용자 관리</strong></summary>
-  <br/>
 
 - 이메일 인증을 통한 회원가입 및 로그인
 - JWT 기반 인증 (Access Token / Refresh Token 분리)
@@ -121,7 +93,6 @@ GitHub 커밋 데이터를 기준으로 프로젝트의 진행 흐름을 기록�
 
 <details>
   <summary><strong>GitHub 연동</strong></summary>
-  <br/>
 
 - GitHub 사용자명 유효성 검사 및 프로필 정보 조회
 - 퍼블릭 레포지토리 조회 및 프로젝트 등록
@@ -132,43 +103,38 @@ GitHub 커밋 데이터를 기준으로 프로젝트의 진행 흐름을 기록�
 
 <details>
   <summary><strong>프로젝트 관리</strong></summary>
-  <br/>
 
 - GitHub Repository 기반 프로젝트 생성
 - 프로젝트 기본 정보 관리 (제목, 설명, 기술 스택, 기간)
 - 진행 중 / 완료 상태 전환
-- 프로젝트 비활성화(소프트 삭제) 지원
 - 커밋 데이터를 기반으로 프로젝트 진행 흐름 자동 반영
+- 프로젝트 비활성화(소프트 삭제) 지원
 
 </details>
 
 <details>
   <summary><strong>커밋 수집 · 분석</strong></summary>
-  <br/>
 
 - GitHub 커밋 데이터 자동 및 수동 동기화
 - 프로젝트별 커밋 통계 제공
   - 전체 커밋 수
   - 최근 커밋 날짜
   - 주간 커밋 분포
-  - 기간별 커밋 히스토리
 - 통계 및 집계 로직을 분리된 Python 분석 서버에서 처리
 
 </details>
 
 <details>
   <summary><strong>대시보드</strong></summary>
-  <br/>
 
-- 사용자 기준 프로젝트 요약 정보 제공
-- 이번 달 커밋 수 및 프로젝트 현황 요약
-- 최근 활동 중인 프로젝트 정보 제공
+- 전체 프로젝트 현황 제공
+- 이번 주 / 이번 달 커밋 수 제공 및 시각화
+- 최근 활동 중인 프로젝트 정보 요약
 
 </details>
 
 <details>
   <summary><strong>설계적 특징</strong></summary>
-  <br/>
 
 - REST API 기반 구조
 - 인증, GitHub 연동, 분석 서버 간 역할 분리
@@ -218,8 +184,7 @@ GitHub 커밋 데이터를 기준으로 프로젝트의 진행 흐름을 기록�
   <summary><strong>시스템 / 배포 아키텍처</strong></summary>
   <br/>
   <p align="center">
-    <!-- TODO: 아키텍처 이미지 교체 -->
-    <img src="./assets/images/Architecture.png" width="700"/>
+    <img src="https://github.com/user-attachments/assets/1f650ee3-527f-47c9-836e-f90f15fc8aac" width="700"/>
   </p>
 </details>
 
@@ -227,8 +192,7 @@ GitHub 커밋 데이터를 기준으로 프로젝트의 진행 흐름을 기록�
   <summary><strong>ERD</strong></summary>
   <br/>
   <p align="center">
-    <!-- TODO: ERD 이미지 교체 -->
-    <img src="./assets/images/chrono-erd.png" width="700"/>
+    <img src="https://github.com/user-attachments/assets/13ed175f-b012-4653-b1a9-1243ad4df0ed" width="700"/>
   </p>
 </details>
 

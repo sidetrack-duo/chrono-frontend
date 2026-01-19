@@ -5,15 +5,40 @@ import { ActivityRecord } from "@/components/dashboard/ActivityRecord";
 import { RecentProjects } from "@/components/dashboard/RecentProjects";
 import { SkeletonCard, SkeletonCardContent, Skeleton } from "@/components/common/Skeleton";
 import { ErrorState } from "@/components/common/ErrorState";
-import { ProjectStatus, ProjectListItem } from "@/types/api";
+import { DailyCommitCount, ProjectStatus, ProjectListItem } from "@/types/api";
 import { getProjects } from "@/lib/api/project";
 
 export function DashboardPage() {
-  const { data, isLoading, error } = useDashboard();
+  const { data, recentDailyCommits, isLoading, error } = useDashboard();
   const [projects, setProjects] = useState<ProjectListItem[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
 
-  const weeklyCommits = data?.weeklyCommits ?? [];
+  const dailyCommits: DailyCommitCount[] = useMemo(() => {
+    const input = (recentDailyCommits ?? []).filter((c) => !!c?.date);
+    const byDate = new Map<string, number>();
+    input.forEach((c) => byDate.set(c.date, c.count ?? 0));
+
+    const end = new Date();
+    end.setHours(0, 0, 0, 0);
+    const start = new Date(end);
+    start.setDate(end.getDate() - 6);
+
+    const toLocalDateString = (d: Date) => {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    };
+
+    const result: DailyCommitCount[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const date = toLocalDateString(d);
+      result.push({ date, count: byDate.get(date) ?? 0 });
+    }
+    return result;
+  }, [recentDailyCommits]);
 
   useEffect(() => {
     const loadProjects = async () => {
@@ -27,7 +52,9 @@ export function DashboardPage() {
         });
         setProjects(sortedProjects.slice(0, 5));
       } catch (err) {
-        console.error("프로젝트 목록을 불러오는데 실패했습니다:", err);
+        if (import.meta.env.DEV) {
+          console.error("프로젝트 목록을 불러오는데 실패했습니다:", err);
+        }
         setProjects([]);
       } finally {
         setIsLoadingProjects(false);
@@ -43,48 +70,40 @@ export function DashboardPage() {
     mostActiveDayIndex,
     streakDays,
   } = useMemo(() => {
-    // 월요일부터 일요일 순서 (MySQL DAYOFWEEK: 2=월, ..., 1=일)
-    const dayOrder = [2, 3, 4, 5, 6, 7, 1];
-    const countsByDay = new Map<number, number>();
-
-    weeklyCommits.forEach((commit) => {
-      countsByDay.set(commit.dayOfWeek, commit.count ?? 0);
-    });
-
-    const counts = dayOrder.map(
-      (dayOfWeek) => countsByDay.get(dayOfWeek) ?? 0
-    );
-
+    const counts = dailyCommits.map((c) => c.count ?? 0);
     const max = counts.length > 0 ? Math.max(...counts) : 0;
     const total = counts.reduce((s, v) => s + v, 0);
 
-    let mostIdx = 0;
-    counts.forEach((c, i) => {
-      if (c > counts[mostIdx]) mostIdx = i;
+    let mostActiveDayLabelIndex = 0;
+    let mostActiveCount = -1;
+    dailyCommits.forEach((c) => {
+      const count = c.count ?? 0;
+      if (count <= mostActiveCount) return;
+      mostActiveCount = count;
+      const d = new Date(`${c.date}T00:00:00`);
+      mostActiveDayLabelIndex = d.getDay() === 0 ? 6 : d.getDay() - 1;
     });
 
-    const today = new Date();
-    const jsDay = today.getDay(); // 1=월, ..., 0=일
-
-    // JS 요일 → counts index (월=0 ... 일=6)
-    const todayIndex = jsDay === 0 ? 6 : jsDay - 1;
-
     let streak = 0;
-
-    if (counts[todayIndex] > 0) {
-      for (let i = todayIndex; i >= 0; i--) {
-        if (counts[i] > 0) streak++;
-        else break;
-      }
+    for (let i = counts.length - 1; i >= 0; i--) {
+      if (counts[i] > 0) streak++;
+      else break;
     }
 
     return {
       maxCommits: max,
       totalWeekCommits: total,
-      mostActiveDayIndex: mostIdx,
+      mostActiveDayIndex: mostActiveDayLabelIndex,
       streakDays: streak,
     };
-  }, [weeklyCommits]);
+  }, [dailyCommits]);
+
+  const weekInfo = useMemo(() => {
+    return {
+      startDate: dailyCommits[0]?.date ?? "",
+      endDate: dailyCommits[dailyCommits.length - 1]?.date ?? "",
+    };
+  }, [dailyCommits]);
 
   const getStatusLabel = (status: ProjectStatus) => {
     return status === ProjectStatus.IN_PROGRESS ? "진행 중" : "완료";
@@ -182,8 +201,8 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-stretch">
         <div className="lg:col-span-2">
           <ActivityOverview
-            weeklyCommits={weeklyCommits}
-            weekInfo={data.weekInfo}
+            dailyCommits={dailyCommits}
+            weekInfo={weekInfo}
             streakDays={streakDays}
             totalWeekCommits={totalWeekCommits}
             mostActiveDayIndex={mostActiveDayIndex}

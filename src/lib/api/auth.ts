@@ -14,13 +14,17 @@ export async function signup(data: SignupRequest): Promise<void> {
   await apiClient.post("/auth/signup", data);
 }
 
-export async function login(data: LoginRequest): Promise<LoginResponse> {
-  const response = await apiClient.post<{ accessToken: string; refreshTokenCookie: string; nickname: string }>("/auth/login", data);
-  
+export async function login(
+  data: LoginRequest
+): Promise<LoginResponse> {
+  const response = await apiClient.post<{
+    accessToken: string;
+    nickname: string;
+  }>("/auth/login", data);
+
   return {
     accessToken: response.data.accessToken,
     user: {
-      userId: 0,
       email: data.email,
       nickname: response.data.nickname,
       githubUsername: undefined,
@@ -51,4 +55,3 @@ export async function requestPasswordReset(data: PasswordResetRequest): Promise<
 export async function resetPassword(data: PasswordResetConfirmRequest): Promise<void> {
   await apiClient.post("/auth/password/reset", data);
 }
-

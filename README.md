@@ -203,4 +203,4 @@ GitHub 커밋 데이터를 기준으로 최신 개발 활동을 반영합니다.
 </details>
 <br><br>
 
-> Version: v1.0
+> Version: v1.0.0

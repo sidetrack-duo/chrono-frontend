@@ -1,8 +1,13 @@
-import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  InternalAxiosRequestConfig,
+} from "axios";
 import { ApiError, ErrorCode } from "@/types/api";
 import { useAuthStore } from "@/stores/authStore";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
@@ -36,7 +41,12 @@ apiClient.interceptors.request.use(
 );
 apiClient.interceptors.response.use(
   (response) => {
-    if (response.data && typeof response.data === "object" && "success" in response.data && "data" in response.data) {
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "success" in response.data &&
+      "data" in response.data
+    ) {
       return {
         ...response,
         data: response.data.data,
@@ -45,18 +55,29 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error: AxiosError<ApiError>) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry
+    ) {
       if (originalRequest.url?.includes("/auth/refresh")) {
         useAuthStore.getState().logout();
-        if (window.location.pathname !== "/login" && window.location.pathname !== "/") {
+        if (
+          window.location.pathname !== "/login" &&
+          window.location.pathname !== "/"
+        ) {
           window.location.href = "/login";
         }
-        return Promise.reject(error.response.data || {
-          message: "인증이 만료되었습니다. 다시 로그인해주세요.",
-          code: ErrorCode.UNAUTHORIZED,
-        });
+        return Promise.reject(
+          error.response.data || {
+            message: "인증이 만료되었습니다. 다시 로그인해주세요.",
+            code: ErrorCode.UNAUTHORIZED,
+          }
+        );
       }
 
       if (isRefreshing) {
@@ -74,13 +95,18 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshResponse = await refreshClient.post<{ success: boolean; message: string; data: string } | string>("/auth/refresh");
+        const refreshResponse = await refreshClient.post<
+          { success: boolean; message: string; data: string } | string
+        >("/auth/refresh");
         const responseData = refreshResponse.data;
-        const newAccessToken = typeof responseData === "object" && responseData && "data" in responseData
-          ? responseData.data
-          : typeof responseData === "string"
-          ? responseData
-          : "";
+        const newAccessToken =
+          typeof responseData === "object" &&
+          responseData &&
+          "data" in responseData
+            ? responseData.data
+            : typeof responseData === "string"
+              ? responseData
+              : "";
         useAuthStore.getState().setToken(newAccessToken);
 
         refreshSubscribers.forEach((callback) => callback(newAccessToken));
@@ -93,8 +119,11 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         refreshSubscribers = [];
         useAuthStore.getState().logout();
-        
-        if (window.location.pathname !== "/login" && window.location.pathname !== "/") {
+
+        if (
+          window.location.pathname !== "/login" &&
+          window.location.pathname !== "/"
+        ) {
           window.location.href = "/login";
         }
         return Promise.reject(refreshError);
@@ -139,9 +168,12 @@ apiClient.interceptors.response.use(
         default:
           message = `요청 처리 중 오류가 발생했습니다. (${statusCode})`;
       }
-    } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+    } else if (
+      error.code === "ECONNABORTED" ||
+      error.message?.includes("timeout")
+    ) {
       message = "요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.";
-    } else if (error.message?.includes('Network Error') || !error.response) {
+    } else if (error.message?.includes("Network Error") || !error.response) {
       message = "네트워크 연결을 확인해주세요.";
     }
 
@@ -161,3 +193,17 @@ export function isApiError(error: unknown): error is ApiError {
   );
 }
 
+export function shouldUseMockFallback(error: unknown): boolean {
+  if (!isApiError(error)) {
+    return true;
+  }
+
+  if (
+    error.code === ErrorCode.UNAUTHORIZED ||
+    error.code === ErrorCode.FORBIDDEN
+  ) {
+    return false;
+  }
+
+  return true;
+}

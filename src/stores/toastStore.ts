@@ -10,27 +10,48 @@ export interface Toast {
 
 interface ToastState {
   toasts: Toast[];
+  timers: Map<string, number>;
   showToast: (message: string, type?: ToastType) => void;
   removeToast: (id: string) => void;
 }
 
 export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
+  timers: new Map(),
   showToast: (message: string, type: ToastType = "info") => {
     const id = Math.random().toString(36).substring(7);
-    set((state) => ({
-      toasts: [...state.toasts, { id, message, type }],
-    }));
-    setTimeout(() => {
-      set((state) => ({
-        toasts: state.toasts.filter((toast) => toast.id !== id),
-      }));
+    const timerId = setTimeout(() => {
+      set((state) => {
+        const newTimers = new Map(state.timers);
+        newTimers.delete(id);
+        return {
+          toasts: state.toasts.filter((toast) => toast.id !== id),
+          timers: newTimers,
+        };
+      });
     }, 3000);
+
+    set((state) => {
+      const newTimers = new Map(state.timers);
+      newTimers.set(id, timerId);
+      return {
+        toasts: [...state.toasts, { id, message, type }],
+        timers: newTimers,
+      };
+    });
   },
   removeToast: (id: string) => {
-    set((state) => ({
-      toasts: state.toasts.filter((toast) => toast.id !== id),
-    }));
+    set((state) => {
+      const timer = state.timers.get(id);
+      if (timer) {
+        clearTimeout(timer);
+      }
+      const newTimers = new Map(state.timers);
+      newTimers.delete(id);
+      return {
+        toasts: state.toasts.filter((toast) => toast.id !== id),
+        timers: newTimers,
+      };
+    });
   },
 }));
-

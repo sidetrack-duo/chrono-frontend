@@ -27,11 +27,32 @@ import {
   CommitSummary,
   CommitHistoryCount,
   DailyCommitCount,
+  LoginRequest,
+  LoginResponse,
 } from "@/types/api";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const DEMO_EMAIL = import.meta.env.VITE_DEMO_EMAIL ?? "demo@example.com";
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD ?? "demo123!";
+
 export const mockApi = {
+  auth: {
+    login: async (data: LoginRequest): Promise<LoginResponse> => {
+      await delay(300);
+      const isDemoAccount =
+        data.email === DEMO_EMAIL && data.password === DEMO_PASSWORD;
+
+      if (!isDemoAccount) {
+        throw new Error("이메일 또는 비밀번호가 올바르지 않습니다.");
+      }
+
+      return {
+        accessToken: "mock-access-token",
+        user: mockUser,
+      };
+    },
+  },
   user: {
     getMe: async (): Promise<User> => {
       await delay(300);
@@ -66,12 +87,12 @@ export const mockApi = {
       const [repoOwner, repoName] = data.repoName.includes("/")
         ? data.repoName.split("/")
         : [mockUser.githubUsername || "testuser", data.repoName];
-      
+
       // 기존 리포지토리 데이터가 있으면 활용
       const existingRepo = mockRepos.find(
         (r) => r.fullName === `${repoOwner}/${repoName}`
       );
-      
+
       return {
         projectId: Math.floor(Math.random() * 1000) + 1000,
         title: data.title,
@@ -86,7 +107,9 @@ export const mockApi = {
         lastCommitAt: existingRepo ? existingRepo.updatedAt : now.toISOString(),
         github: {
           totalCommits: existingRepo ? Math.floor(Math.random() * 200) + 50 : 0,
-          lastCommitAt: existingRepo ? existingRepo.updatedAt : now.toISOString(),
+          lastCommitAt: existingRepo
+            ? existingRepo.updatedAt
+            : now.toISOString(),
         },
       };
     },
@@ -128,7 +151,9 @@ export const mockApi = {
   },
 
   commit: {
-    getWeeklyCommits: async (_projectId: number): Promise<WeeklyCommitCount[]> => {
+    getWeeklyCommits: async (
+      _projectId: number
+    ): Promise<WeeklyCommitCount[]> => {
       await delay(300);
       return mockWeeklyCommits;
     },
@@ -136,7 +161,9 @@ export const mockApi = {
       await delay(300);
       return mockCommitSummary;
     },
-    getCommitHistory: async (_projectId: number): Promise<CommitHistoryCount[]> => {
+    getCommitHistory: async (
+      _projectId: number
+    ): Promise<CommitHistoryCount[]> => {
       await delay(300);
       return mockCommitHistory;
     },

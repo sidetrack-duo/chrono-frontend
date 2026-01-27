@@ -1,4 +1,4 @@
-import { apiClient, isApiError } from "./client";
+import { apiClient, isApiError, shouldUseMockFallback } from "./client";
 import {
   Project,
   CreateProjectRequest,
@@ -16,20 +16,23 @@ export async function createProject(
     const mockProject = await mockApi.project.createProject(data);
     return { projectId: mockProject.projectId };
   }
-  
+
   try {
     if (!owner) {
       throw new Error("GitHub username이 필요합니다.");
     }
-    
+
     const [repoOwner, repoName] = data.repoName.includes("/")
       ? data.repoName.split("/")
       : [owner, data.repoName];
-    
+
     const techStackArray = data.techStack
-      ? data.techStack.split(",").map((s) => s.trim()).filter(Boolean)
+      ? data.techStack
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
       : undefined;
-    
+
     const response = await apiClient.post<number>("/projects", {
       owner: repoOwner,
       repoName: repoName,
@@ -42,13 +45,20 @@ export async function createProject(
     });
     return { projectId: response.data };
   } catch (error) {
+    if (!shouldUseMockFallback(error)) {
+      throw error;
+    }
+
     const errorInfo = isApiError(error)
       ? `[${error.code}] ${error.message}`
       : error instanceof Error
-      ? error.message
-      : "알 수 없는 오류";
+        ? error.message
+        : "알 수 없는 오류";
     if (import.meta.env.DEV) {
-      console.warn(`프로젝트 생성 API 호출 실패, mock 데이터 사용: ${errorInfo}`, error);
+      console.warn(
+        `프로젝트 생성 API 호출 실패, mock 데이터 사용: ${errorInfo}`,
+        error
+      );
     }
     const mockProject = await mockApi.project.createProject(data);
     return { projectId: mockProject.projectId };
@@ -76,10 +86,10 @@ export async function getProjects(): Promise<ProjectListItem[]> {
   if (import.meta.env.DEV && import.meta.env.VITE_USE_MOCK === "true") {
     return mockApi.project.getProjects();
   }
-  
+
   try {
     const response = await apiClient.get<BackendProjectResponse[]>("/projects");
-    
+
     return response.data.map((p) => ({
       projectId: p.projectId,
       title: p.title || p.repoName,
@@ -91,14 +101,20 @@ export async function getProjects(): Promise<ProjectListItem[]> {
       startDate: p.startDate || p.createdAt,
     }));
   } catch (error) {
-    // 서버 실패 시 mock 데이터 사용
+    if (!shouldUseMockFallback(error)) {
+      throw error;
+    }
+
     const errorInfo = isApiError(error)
       ? `[${error.code}] ${error.message}`
       : error instanceof Error
-      ? error.message
-      : "알 수 없는 오류";
+        ? error.message
+        : "알 수 없는 오류";
     if (import.meta.env.DEV) {
-      console.warn(`프로젝트 목록 API 호출 실패, mock 데이터 사용: ${errorInfo}`, error);
+      console.warn(
+        `프로젝트 목록 API 호출 실패, mock 데이터 사용: ${errorInfo}`,
+        error
+      );
     }
     return mockApi.project.getProjects();
   }
@@ -125,11 +141,13 @@ export async function getProject(id: number): Promise<Project> {
   if (import.meta.env.DEV && import.meta.env.VITE_USE_MOCK === "true") {
     return mockApi.project.getProject(id);
   }
-  
+
   try {
-    const response = await apiClient.get<BackendProjectDetailResponse>(`/projects/${id}`);
+    const response = await apiClient.get<BackendProjectDetailResponse>(
+      `/projects/${id}`
+    );
     const p = response.data;
-    
+
     return {
       projectId: p.projectId,
       title: p.title || p.repoName,
@@ -144,14 +162,20 @@ export async function getProject(id: number): Promise<Project> {
       lastCommitAt: p.lastCommitAt || undefined,
     };
   } catch (error) {
-    // 서버 실패 시 mock 데이터 사용
+    if (!shouldUseMockFallback(error)) {
+      throw error;
+    }
+
     const errorInfo = isApiError(error)
       ? `[${error.code}] ${error.message}`
       : error instanceof Error
-      ? error.message
-      : "알 수 없는 오류";
+        ? error.message
+        : "알 수 없는 오류";
     if (import.meta.env.DEV) {
-      console.warn(`프로젝트 상세 조회 API 호출 실패, mock 데이터 사용: ${errorInfo}`, error);
+      console.warn(
+        `프로젝트 상세 조회 API 호출 실패, mock 데이터 사용: ${errorInfo}`,
+        error
+      );
     }
     return mockApi.project.getProject(id);
   }
@@ -164,12 +188,15 @@ export async function updateProject(
   if (import.meta.env.DEV && import.meta.env.VITE_USE_MOCK === "true") {
     return mockApi.project.updateProject(id, data);
   }
-  
+
   try {
     const techStackArray = data.techStack
-      ? data.techStack.split(",").map((s) => s.trim()).filter(Boolean)
+      ? data.techStack
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
       : undefined;
-    
+
     await apiClient.put(`/projects/${id}/meta`, {
       title: data.title,
       description: data.description,
@@ -177,16 +204,23 @@ export async function updateProject(
       startDate: data.startDate || undefined,
       targetDate: data.targetDate || undefined,
     });
-    
+
     return getProject(id);
   } catch (error) {
+    if (!shouldUseMockFallback(error)) {
+      throw error;
+    }
+
     const errorInfo = isApiError(error)
       ? `[${error.code}] ${error.message}`
       : error instanceof Error
-      ? error.message
-      : "알 수 없는 오류";
+        ? error.message
+        : "알 수 없는 오류";
     if (import.meta.env.DEV) {
-      console.warn(`프로젝트 수정 API 호출 실패, mock 데이터 사용: ${errorInfo}`, error);
+      console.warn(
+        `프로젝트 수정 API 호출 실패, mock 데이터 사용: ${errorInfo}`,
+        error
+      );
     }
     return mockApi.project.updateProject(id, data);
   }
@@ -200,17 +234,24 @@ export async function updateProjectStatus(
     await mockApi.project.updateProject(id, { status });
     return;
   }
-  
+
   try {
     await apiClient.patch(`/projects/${id}/status`, { status });
   } catch (error) {
+    if (!shouldUseMockFallback(error)) {
+      throw error;
+    }
+
     const errorInfo = isApiError(error)
       ? `[${error.code}] ${error.message}`
       : error instanceof Error
-      ? error.message
-      : "알 수 없는 오류";
+        ? error.message
+        : "알 수 없는 오류";
     if (import.meta.env.DEV) {
-      console.warn(`프로젝트 상태 변경 API 호출 실패, mock 데이터 사용: ${errorInfo}`, error);
+      console.warn(
+        `프로젝트 상태 변경 API 호출 실패, mock 데이터 사용: ${errorInfo}`,
+        error
+      );
     }
     await mockApi.project.updateProject(id, { status });
     return;
@@ -221,19 +262,25 @@ export async function deleteProject(id: number): Promise<void> {
   if (import.meta.env.DEV && import.meta.env.VITE_USE_MOCK === "true") {
     return mockApi.project.deleteProject();
   }
-  
+
   try {
     await apiClient.patch(`/projects/${id}/active`, { active: false });
   } catch (error) {
+    if (!shouldUseMockFallback(error)) {
+      throw error;
+    }
+
     const errorInfo = isApiError(error)
       ? `[${error.code}] ${error.message}`
       : error instanceof Error
-      ? error.message
-      : "알 수 없는 오류";
+        ? error.message
+        : "알 수 없는 오류";
     if (import.meta.env.DEV) {
-      console.warn(`프로젝트 삭제 API 호출 실패, mock 데이터 사용: ${errorInfo}`, error);
+      console.warn(
+        `프로젝트 삭제 API 호출 실패, mock 데이터 사용: ${errorInfo}`,
+        error
+      );
     }
     return mockApi.project.deleteProject();
   }
 }
-
